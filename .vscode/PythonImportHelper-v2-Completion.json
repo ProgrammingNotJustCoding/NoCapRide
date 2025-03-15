@@ -1111,47 +1111,38 @@
         "documentation": {}
     },
     {
-        "label": "_Known",
-        "kind": 6,
-        "importPath": "nextjs-example.node_modules.flatted.python.flatted",
-        "description": "nextjs-example.node_modules.flatted.python.flatted",
-        "peekOfCode": "class _Known:\n    def __init__(self):\n        self.key = []\n        self.value = []\nclass _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0",
-        "detail": "nextjs-example.node_modules.flatted.python.flatted",
-        "documentation": {}
-    },
-    {
-        "label": "_String",
-        "kind": 6,
-        "importPath": "nextjs-example.node_modules.flatted.python.flatted",
-        "description": "nextjs-example.node_modules.flatted.python.flatted",
-        "peekOfCode": "class _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0\n    for _ in value:\n        keys.append(i)\n        i += 1\n    return keys",
-        "detail": "nextjs-example.node_modules.flatted.python.flatted",
-        "documentation": {}
-    },
-    {
-        "label": "parse",
-        "kind": 2,
-        "importPath": "nextjs-example.node_modules.flatted.python.flatted",
-        "description": "nextjs-example.node_modules.flatted.python.flatted",
-        "peekOfCode": "def parse(value, *args, **kwargs):\n    json = _json.loads(value, *args, **kwargs)\n    wrapped = []\n    for value in json:\n        wrapped.append(_wrap(value))\n    input = []\n    for value in wrapped:\n        if isinstance(value, _String):\n            input.append(value.value)\n        else:",
-        "detail": "nextjs-example.node_modules.flatted.python.flatted",
-        "documentation": {}
-    },
-    {
-        "label": "stringify",
-        "kind": 2,
-        "importPath": "nextjs-example.node_modules.flatted.python.flatted",
-        "description": "nextjs-example.node_modules.flatted.python.flatted",
-        "peekOfCode": "def stringify(value, *args, **kwargs):\n    known = _Known()\n    input = []\n    output = []\n    i = int(_index(known, input, value))\n    while i < len(input):\n        output.append(_transform(known, input, input[i]))\n        i += 1\n    return _json.dumps(output, *args, **kwargs)",
-        "detail": "nextjs-example.node_modules.flatted.python.flatted",
-        "documentation": {}
-    },
-    {
         "label": "timed_cache",
         "kind": 2,
         "importPath": "api",
         "description": "api",
         "peekOfCode": "def timed_cache(timeout_seconds=300):\n    def decorator(func):\n        cache = {}\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            key = str(args) + str(kwargs)\n            current_time = datetime.now()\n            with cache_lock:\n                # Check if result is in cache and not expired\n                if key in cache:",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "get_cache_file_path",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def get_cache_file_path(cache_key):\n    \"\"\"Generate a sanitized file path for the cache key\"\"\"\n    # Replace characters that aren't valid in filenames\n    safe_key = re.sub(r\"[^\\w\\-_]\", \"_\", cache_key)\n    return os.path.join(CACHE_DIR, f\"{safe_key}.json\")\ndef load_from_file_cache(cache_key, max_age_seconds=1800):\n    \"\"\"Load data from file cache if it exists and is not expired\"\"\"\n    file_path = get_cache_file_path(cache_key)\n    if os.path.exists(file_path):\n        try:",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "load_from_file_cache",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def load_from_file_cache(cache_key, max_age_seconds=1800):\n    \"\"\"Load data from file cache if it exists and is not expired\"\"\"\n    file_path = get_cache_file_path(cache_key)\n    if os.path.exists(file_path):\n        try:\n            with open(file_path, \"r\") as f:\n                cache_data = json.load(f)\n            # Check if the cache is still valid\n            cache_time = datetime.fromisoformat(\n                cache_data.get(\"cached_at\", \"2000-01-01T00:00:00\")",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "save_to_file_cache",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def save_to_file_cache(cache_key, data):\n    \"\"\"Save data to file cache\"\"\"\n    file_path = get_cache_file_path(cache_key)\n    try:\n        cache_entry = {\n            \"data\": data,\n            \"cached_at\": datetime.now().isoformat(),\n            \"key\": cache_key,\n        }\n        with open(file_path, \"w\") as f:",
         "detail": "api",
         "documentation": {}
     },
@@ -1169,7 +1160,7 @@
         "kind": 2,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "def get_forecast():\n    \"\"\"Get forecast for the specified parameters\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))\n        region = request.args.get(\"region\")\n        # No longer convert region to integer - keep it as a string\n        # This allows for region identifiers like \"b_1\" or \"w_0\"\n        if region is not None:",
+        "peekOfCode": "def get_forecast():\n    \"\"\"Get forecast for the specified parameters\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))\n        region = request.args.get(\"region\")\n        force_refresh = request.args.get(\"refresh\", \"false\").lower() == \"true\"\n        # No longer convert region to integer - keep it as a string\n        # This allows for region identifiers like \"b_1\" or \"w_0\"",
         "detail": "api",
         "documentation": {}
     },
@@ -1178,43 +1169,7 @@
         "kind": 2,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "def get_regions():\n    \"\"\"\n    Get available regions for a given type.\n    \"\"\"\n    try:\n        data_type = request.args.get(\"type\", \"ward\")\n        filter_type = request.args.get(\"filter\", \"all\")  # 'all', 'simple', 'b', 'w'\n        # Get the regions from the historical data\n        regions = []\n        # Get the historical data",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "get_historical_data",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def get_historical_data():\n    \"\"\"Get historical data for the specified parameters\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        region = request.args.get(\"region\")\n        hours = int(request.args.get(\"hours\", \"48\"))  # Default to last 48 hours\n        # Limit hours to prevent large responses\n        if hours > 168:  # 1 week\n            hours = 168",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "get_model_info",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def get_model_info():\n    \"\"\"Get information about the trained model\"\"\"\n    try:\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        # Check if model is loaded\n        if forecaster.model is None:\n            forecaster.load_model(data_type)\n        if forecaster.model is None:\n            return jsonify({\"error\": f\"No model available for {data_type}\"}), 404\n        # Get feature importance if available",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "retrain_model",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def retrain_model():\n    \"\"\"Retrain the model with the latest data\"\"\"\n    try:\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        # Fetch latest data\n        data_manager.fetch_all_endpoints()\n        # Retrain model\n        forecaster.train_model(data_type, force=True)\n        if forecaster.model is None:\n            return jsonify({\"error\": \"Failed to train model\"}), 500",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "clear_cache",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def clear_cache():\n    \"\"\"Clear the API cache\"\"\"\n    try:\n        with cache_lock:\n            forecast_cache.clear()\n        return jsonify(\n            {\n                \"status\": \"success\",\n                \"message\": \"Cache cleared successfully\",\n                \"timestamp\": datetime.now().isoformat(),",
+        "peekOfCode": "def get_regions():\n    \"\"\"\n    Get available regions for a given type.\n    \"\"\"\n    try:\n        data_type = request.args.get(\"type\", \"ward\")\n        filter_type = request.args.get(\"filter\", \"all\")  # 'all', 'simple', 'b', 'w'\n        force_refresh = request.args.get(\"refresh\", \"false\").lower() == \"true\"\n        # Create cache key\n        cache_key = f\"regions_{data_type}_{filter_type}\"",
         "detail": "api",
         "documentation": {}
     },
@@ -1224,6 +1179,15 @@
         "importPath": "api",
         "description": "api",
         "peekOfCode": "def get_all_forecasts():\n    \"\"\"Get forecast for all regions of the specified type\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))\n        filter_type = request.args.get(\n            \"filter\", \"all\"\n        )  # Optional filter for region types\n        max_workers = int(",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "get_demand_forecast_ratio",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def get_demand_forecast_ratio():\n    \"\"\"\n    Get the ratio between forecasted demand and active drivers.\n    This helps evaluate the supply-demand balance for each region.\n    \"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))\n        region = request.args.get(\"region\")",
         "detail": "api",
         "documentation": {}
     },
@@ -1241,7 +1205,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "app = Flask(__name__)\nCORS(app)  # Enable CORS for all routes\n# Initialize data manager and forecaster\ndata_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Load historical data and models",
+        "peekOfCode": "app = Flask(__name__)\nCORS(app)  # Enable CORS for all routes\n# Initialize data manager and forecaster\ndata_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists",
         "detail": "api",
         "documentation": {}
     },
@@ -1250,7 +1214,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "data_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")",
+        "peekOfCode": "data_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models",
         "detail": "api",
         "documentation": {}
     },
@@ -1259,7 +1223,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "forecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")",
+        "peekOfCode": "forecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:",
         "detail": "api",
         "documentation": {}
     },
@@ -1268,7 +1232,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "forecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:\n    logger.error(f\"Error loading data or models: {e}\")",
+        "peekOfCode": "forecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")",
         "detail": "api",
         "documentation": {}
     },
@@ -1277,7 +1241,16 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "cache_lock = threading.Lock()\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:\n    logger.error(f\"Error loading data or models: {e}\")\n    logger.error(traceback.format_exc())\n# Cache decorator with timeout",
+        "peekOfCode": "cache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "CACHE_DIR",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "CACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:\n    logger.error(f\"Error loading data or models: {e}\")\n    logger.error(traceback.format_exc())",
         "detail": "api",
         "documentation": {}
     },

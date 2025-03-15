@@ -1,0 +1,110 @@
+{
+  "data": {
+    "forecast": [
+      {
+        "datetime": "2025-03-15T21:00:00",
+        "forecast_requests": 689
+      },
+      {
+        "datetime": "2025-03-15T22:00:00",
+        "forecast_requests": 759
+      },
+      {
+        "datetime": "2025-03-15T23:00:00",
+        "forecast_requests": 795
+      },
+      {
+        "datetime": "2025-03-16T00:00:00",
+        "forecast_requests": 658
+      },
+      {
+        "datetime": "2025-03-16T01:00:00",
+        "forecast_requests": 631
+      },
+      {
+        "datetime": "2025-03-16T02:00:00",
+        "forecast_requests": 797
+      },
+      {
+        "datetime": "2025-03-16T03:00:00",
+        "forecast_requests": 794
+      },
+      {
+        "datetime": "2025-03-16T04:00:00",
+        "forecast_requests": 629
+      },
+      {
+        "datetime": "2025-03-16T05:00:00",
+        "forecast_requests": 630
+      },
+      {
+        "datetime": "2025-03-16T06:00:00",
+        "forecast_requests": 752
+      },
+      {
+        "datetime": "2025-03-16T07:00:00",
+        "forecast_requests": 667
+      },
+      {
+        "datetime": "2025-03-16T08:00:00",
+        "forecast_requests": 627
+      },
+      {
+        "datetime": "2025-03-16T09:00:00",
+        "forecast_requests": 754
+      },
+      {
+        "datetime": "2025-03-16T10:00:00",
+        "forecast_requests": 754
+      },
+      {
+        "datetime": "2025-03-16T11:00:00",
+        "forecast_requests": 639
+      },
+      {
+        "datetime": "2025-03-16T12:00:00",
+        "forecast_requests": 647
+      },
+      {
+        "datetime": "2025-03-16T13:00:00",
+        "forecast_requests": 767
+      },
+      {
+        "datetime": "2025-03-16T14:00:00",
+        "forecast_requests": 765
+      },
+      {
+        "datetime": "2025-03-16T15:00:00",
+        "forecast_requests": 605
+      },
+      {
+        "datetime": "2025-03-16T16:00:00",
+        "forecast_requests": 655
+      },
+      {
+        "datetime": "2025-03-16T17:00:00",
+        "forecast_requests": 780
+      },
+      {
+        "datetime": "2025-03-16T18:00:00",
+        "forecast_requests": 738
+      },
+      {
+        "datetime": "2025-03-16T19:00:00",
+        "forecast_requests": 646
+      },
+      {
+        "datetime": "2025-03-16T20:00:00",
+        "forecast_requests": 631
+      }
+    ],
+    "metadata": {
+      "data_type": "ward",
+      "hours": 24,
+      "region": "b_10",
+      "generated_at": "2025-03-16T01:54:18.234776"
+    }
+  },
+  "cached_at": "2025-03-16T01:54:18.234788",
+  "key": "forecast_ward_24_b_10"
+}

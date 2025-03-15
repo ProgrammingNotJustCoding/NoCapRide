@@ -7,3 +7,4 @@ schedule==1.2.0
 holidays==0.29
 playwright==1.39.0
 requests==2.31.0
+matplotlib

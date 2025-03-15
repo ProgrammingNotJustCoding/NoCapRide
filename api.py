@@ -25,7 +25,6 @@ logging.basicConfig(
     handlers=[
         logging.FileHandler("logs/api_log.txt", mode="a"),
         logging.StreamHandler(),
-        x,
     ],
 )
 logger = logging.getLogger("forecast_api")
@@ -42,6 +41,10 @@ forecaster = RideRequestForecast(data_manager)
 forecast_cache = {}
 # Lock for thread safety
 cache_lock = threading.Lock()
+
+# Ensure cache directory exists
+CACHE_DIR = "cache/forecasts"
+os.makedirs(CACHE_DIR, exist_ok=True)
 
 # Load historical data and models
 try:
@@ -87,6 +90,52 @@ def timed_cache(timeout_seconds=300):
     return decorator
 
 
+def get_cache_file_path(cache_key):
+    """Generate a sanitized file path for the cache key"""
+    # Replace characters that aren't valid in filenames
+    safe_key = re.sub(r"[^\w\-_]", "_", cache_key)
+    return os.path.join(CACHE_DIR, f"{safe_key}.json")
+
+
+def load_from_file_cache(cache_key, max_age_seconds=1800):
+    """Load data from file cache if it exists and is not expired"""
+    file_path = get_cache_file_path(cache_key)
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, "r") as f:
+                cache_data = json.load(f)
+
+            # Check if the cache is still valid
+            cache_time = datetime.fromisoformat(
+                cache_data.get("cached_at", "2000-01-01T00:00:00")
+            )
+            if (datetime.now() - cache_time).total_seconds() < max_age_seconds:
+                logger.info(f"Using file cache for {cache_key}")
+                return cache_data.get("data")
+        except Exception as e:
+            logger.error(f"Error loading from file cache: {e}")
+
+    return None
+
+
+def save_to_file_cache(cache_key, data):
+    """Save data to file cache"""
+    file_path = get_cache_file_path(cache_key)
+    try:
+        cache_entry = {
+            "data": data,
+            "cached_at": datetime.now().isoformat(),
+            "key": cache_key,
+        }
+        with open(file_path, "w") as f:
+            json.dump(cache_entry, f, indent=2)
+        logger.info(f"Saved to file cache: {cache_key}")
+        return True
+    except Exception as e:
+        logger.error(f"Error saving to file cache: {e}")
+        return False
+
+
 @app.route("/api/health", methods=["GET"])
 def health_check():
     """Health check endpoint"""
@@ -101,6 +150,7 @@ def get_forecast():
         data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
         hours = int(request.args.get("hours", "24"))
         region = request.args.get("region")
+        force_refresh = request.args.get("refresh", "false").lower() == "true"
 
         # No longer convert region to integer - keep it as a string
         # This allows for region identifiers like "b_1" or "w_0"
@@ -124,16 +174,79 @@ def get_forecast():
                         400,
                     )
 
-        # Check cache first
+        # Create cache key
         cache_key = f"forecast_{data_type}_{hours}_{region}"
-        with cache_lock:
-            if cache_key in forecast_cache:
-                cache_entry = forecast_cache[cache_key]
-                cache_time = cache_entry["timestamp"]
-                # Use cache if it's less than 30 minutes old
-                if (datetime.now() - cache_time).total_seconds() < 1800:
-                    logger.info(f"Using cached forecast for {cache_key}")
-                    return jsonify(cache_entry["data"])
+
+        # Check memory cache first if not forcing refresh
+        if not force_refresh:
+            with cache_lock:
+                if cache_key in forecast_cache:
+                    cache_entry = forecast_cache[cache_key]
+                    cache_time = cache_entry["timestamp"]
+                    # Use cache if it's less than 30 minutes old
+                    if (datetime.now() - cache_time).total_seconds() < 1800:
+                        logger.info(f"Using memory cache for {cache_key}")
+                        return jsonify(cache_entry["data"])
+
+            # Check file cache for this specific region
+            file_cache_data = load_from_file_cache(cache_key)
+            if file_cache_data:
+                # Also update memory cache
+                with cache_lock:
+                    forecast_cache[cache_key] = {
+                        "data": file_cache_data,
+                        "timestamp": datetime.now(),
+                    }
+                logger.info(f"Using file cache for specific region: {cache_key}")
+                return jsonify(file_cache_data)
+
+            # Also check if this data might be available from the "forecast/all" endpoint's cache
+            # Look for cached data from forecast/all that includes this region
+            all_forecast_cache_key = f"forecast_all_{data_type}_{hours}_all"
+            all_forecast_cache_data = load_from_file_cache(all_forecast_cache_key)
+
+            if all_forecast_cache_data and "forecasts" in all_forecast_cache_data:
+                # Check if this region is included in the all-regions forecast
+                if region in all_forecast_cache_data["forecasts"]:
+                    logger.info(
+                        f"Using region {region} data from all-regions forecast cache"
+                    )
+
+                    # Extract this region's data from the all-regions forecast
+                    region_data = all_forecast_cache_data["forecasts"][region]
+
+                    # Format response similar to single region forecast
+                    response_data = {
+                        "forecast": [
+                            {
+                                "datetime": item["datetime"],
+                                "region": region,
+                                "forecast_requests": item["forecast_requests"],
+                            }
+                            for item in region_data
+                        ],
+                        "metadata": {
+                            "data_type": data_type,
+                            "hours": hours,
+                            "region": region,
+                            "generated_at": all_forecast_cache_data["metadata"][
+                                "generated_at"
+                            ],
+                            "source": "all_regions_cache",
+                        },
+                    }
+
+                    # Also cache this separately for faster access next time
+                    save_to_file_cache(cache_key, response_data)
+
+                    # Update memory cache
+                    with cache_lock:
+                        forecast_cache[cache_key] = {
+                            "data": response_data,
+                            "timestamp": datetime.now(),
+                        }
+
+                    return jsonify(response_data)
 
         # Set a reasonable limit on forecast hours
         if hours > 72:
@@ -189,7 +302,10 @@ def get_forecast():
             },
         }
 
-        # Cache the result
+        # Save to file cache
+        save_to_file_cache(cache_key, response_data)
+
+        # Cache in memory
         with cache_lock:
             forecast_cache[cache_key] = {
                 "data": response_data,
@@ -215,7 +331,6 @@ def get_forecast():
 
 
 @app.route("/api/regions", methods=["GET"])
-@timed_cache(timeout_seconds=300)  # Cache for 5 minutes
 def get_regions():
     """
     Get available regions for a given type.
@@ -223,6 +338,16 @@ def get_regions():
     try:
         data_type = request.args.get("type", "ward")
         filter_type = request.args.get("filter", "all")  # 'all', 'simple', 'b', 'w'
+        force_refresh = request.args.get("refresh", "false").lower() == "true"
+
+        # Create cache key
+        cache_key = f"regions_{data_type}_{filter_type}"
+
+        # Check file cache if not forcing refresh
+        if not force_refresh:
+            file_cache_data = load_from_file_cache(cache_key)
+            if file_cache_data:
+                return jsonify(file_cache_data)
 
         # Get the regions from the historical data
         regions = []
@@ -263,204 +388,14 @@ def get_regions():
         else:
             logger.warning(f"No historical data found for type {data_type}")
 
-        return jsonify({"regions": regions})
+        response_data = {"regions": regions}
+
+        # Save to file cache
+        save_to_file_cache(cache_key, response_data)
+
+        return jsonify(response_data)
     except Exception as e:
         logger.error(f"Error getting regions: {e}")
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/historical", methods=["GET"])
-@timed_cache(timeout_seconds=300)  # Cache for 5 minutes
-def get_historical_data():
-    """Get historical data for the specified parameters"""
-    try:
-        # Get query parameters
-        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
-        region = request.args.get("region")
-        hours = int(request.args.get("hours", "48"))  # Default to last 48 hours
-
-        # Limit hours to prevent large responses
-        if hours > 168:  # 1 week
-            hours = 168
-            logger.warning(f"Historical hours capped at 168 (requested: {hours})")
-
-        # No longer convert region to integer - keep it as a string
-        # This allows for region identifiers like "b_1" or "w_0"
-        if region is not None:
-            # Validate that the region exists
-            df = data_manager.get_historical_trends_data(data_type)
-            region_col = "ward_num" if data_type == "ward" else "ac_num"
-
-            if region_col in df.columns:
-                valid_regions = df[region_col].unique().tolist()
-                if region not in valid_regions:
-                    logger.warning(
-                        f"Region {region} not found in data. Valid regions: {valid_regions[:5]}..."
-                    )
-                    return (
-                        jsonify(
-                            {
-                                "error": f"Region {region} not found. Valid regions include: {valid_regions[:5]}..."
-                            }
-                        ),
-                        400,
-                    )
-
-        # Get historical data
-        df = data_manager.get_historical_trends_data(data_type)
-
-        if df.empty:
-            return jsonify({"error": "No historical data available"}), 404
-
-        # Determine region column based on data type
-        region_col = "ward_num" if data_type == "ward" else "ac_num"
-
-        # Filter by region if specified
-        if region is not None and region_col in df.columns:
-            df = df[df[region_col] == region]
-
-        # Filter to recent data
-        if "datetime" in df.columns:
-            min_datetime = datetime.now() - timedelta(hours=hours)
-            df = df[df["datetime"] >= min_datetime]
-
-        # Format the response
-        result = []
-        for _, row in df.iterrows():
-            record = {
-                "datetime": (
-                    row["datetime"].isoformat() if "datetime" in df.columns else None
-                ),
-                "region": row[region_col] if region_col in df.columns else None,
-                "search_requests": (
-                    int(row["srch_rqst"]) if "srch_rqst" in df.columns else 0
-                ),
-            }
-            result.append(record)
-
-        return jsonify(
-            {
-                "historical_data": result,
-                "metadata": {
-                    "data_type": data_type,
-                    "hours": hours,
-                    "region": region,
-                    "count": len(result),
-                },
-            }
-        )
-
-    except Exception as e:
-        logger.error(f"Error getting historical data: {e}")
-        logger.error(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/model/info", methods=["GET"])
-@timed_cache(timeout_seconds=600)  # Cache for 10 minutes
-def get_model_info():
-    """Get information about the trained model"""
-    try:
-        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
-
-        # Check if model is loaded
-        if forecaster.model is None:
-            forecaster.load_model(data_type)
-
-        if forecaster.model is None:
-            return jsonify({"error": f"No model available for {data_type}"}), 404
-
-        # Get feature importance if available
-        feature_importance = []
-        if forecaster.model is not None and forecaster.features:
-            importances = forecaster.model.feature_importances_
-            for i, feature in enumerate(forecaster.features):
-                feature_importance.append(
-                    {"feature": feature, "importance": float(importances[i])}
-                )
-
-            # Sort by importance
-            feature_importance.sort(key=lambda x: x["importance"], reverse=True)
-
-        # Get model metadata
-        model_path = os.path.join("data/models", f"rf_model_{data_type}.pkl")
-        model_stats = {}
-        if os.path.exists(model_path):
-            model_stats["file_size"] = os.path.getsize(model_path)
-            model_stats["last_modified"] = datetime.fromtimestamp(
-                os.path.getmtime(model_path)
-            ).isoformat()
-
-        return jsonify(
-            {
-                "model_type": "RandomForestRegressor",
-                "data_type": data_type,
-                "features": forecaster.features,
-                "feature_importance": feature_importance,
-                "model_stats": model_stats,
-                "n_estimators": (
-                    forecaster.model.n_estimators if forecaster.model else None
-                ),
-                "max_depth": forecaster.model.max_depth if forecaster.model else None,
-            }
-        )
-
-    except Exception as e:
-        logger.error(f"Error getting model info: {e}")
-        logger.error(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/retrain", methods=["POST"])
-def retrain_model():
-    """Retrain the model with the latest data"""
-    try:
-        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
-
-        # Fetch latest data
-        data_manager.fetch_all_endpoints()
-
-        # Retrain model
-        forecaster.train_model(data_type, force=True)
-
-        if forecaster.model is None:
-            return jsonify({"error": "Failed to train model"}), 500
-
-        # Clear cache after retraining
-        with cache_lock:
-            forecast_cache.clear()
-
-        return jsonify(
-            {
-                "status": "success",
-                "message": f"Model for {data_type} retrained successfully",
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
-
-    except Exception as e:
-        logger.error(f"Error retraining model: {e}")
-        logger.error(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/cache/clear", methods=["POST"])
-def clear_cache():
-    """Clear the API cache"""
-    try:
-        with cache_lock:
-            forecast_cache.clear()
-
-        return jsonify(
-            {
-                "status": "success",
-                "message": "Cache cleared successfully",
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
-    except Exception as e:
-        logger.error(f"Error clearing cache: {e}")
-        logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 
@@ -480,6 +415,7 @@ def get_all_forecasts():
         batch_size = int(
             request.args.get("batch_size", "0")
         )  # Optional batch size for processing
+        force_refresh = request.args.get("refresh", "false").lower() == "true"
 
         # Set reasonable limits
         if hours > 72:
@@ -490,16 +426,32 @@ def get_all_forecasts():
             max_workers = 8  # Cap at 8 workers to prevent overloading the server
             logger.warning(f"Worker count capped at 8 (requested: {max_workers})")
 
-        # Check cache first
+        # Create cache key
         cache_key = f"forecast_all_{data_type}_{hours}_{filter_type}"
-        with cache_lock:
-            if cache_key in forecast_cache:
-                cache_entry = forecast_cache[cache_key]
-                cache_time = cache_entry["timestamp"]
-                # Use cache if it's less than 30 minutes old
-                if (datetime.now() - cache_time).total_seconds() < 1800:
-                    logger.info(f"Using cached forecast for {cache_key}")
-                    return jsonify(cache_entry["data"])
+        if batch_size > 0:
+            cache_key += f"_batch{batch_size}"
+
+        # Check memory cache first if not forcing refresh
+        if not force_refresh:
+            with cache_lock:
+                if cache_key in forecast_cache:
+                    cache_entry = forecast_cache[cache_key]
+                    cache_time = cache_entry["timestamp"]
+                    # Use cache if it's less than 30 minutes old
+                    if (datetime.now() - cache_time).total_seconds() < 1800:
+                        logger.info(f"Using memory cache for {cache_key}")
+                        return jsonify(cache_entry["data"])
+
+            # Check file cache next
+            file_cache_data = load_from_file_cache(cache_key)
+            if file_cache_data:
+                # Also update memory cache
+                with cache_lock:
+                    forecast_cache[cache_key] = {
+                        "data": file_cache_data,
+                        "timestamp": datetime.now(),
+                    }
+                return jsonify(file_cache_data)
 
         # Get regions directly from data manager instead of calling the endpoint
         df = data_manager.get_historical_trends_data(data_type)
@@ -567,6 +519,18 @@ def get_all_forecasts():
                 )
                 start_time = time.time()
 
+                # Check if individual region forecast is cached
+                region_cache_key = f"forecast_{data_type}_{hours}_{region}"
+                region_cache_data = load_from_file_cache(region_cache_key)
+
+                if region_cache_data and not force_refresh:
+                    logger.info(
+                        f"Worker {thread_id}: Using cached forecast for region {region}"
+                    )
+                    region_results = region_cache_data.get("forecast", [])
+                    return region, region_results
+
+                # Otherwise generate the forecast
                 region_forecast_df = forecaster.forecast_next_hours(
                     hours, data_type, region
                 )
@@ -590,6 +554,18 @@ def get_all_forecasts():
                             "forecast_requests": int(row["forecast_requests"]),
                         }
                     )
+
+                # Cache individual region forecast
+                region_response_data = {
+                    "forecast": region_results,
+                    "metadata": {
+                        "data_type": data_type,
+                        "hours": hours,
+                        "region": region,
+                        "generated_at": datetime.now().isoformat(),
+                    },
+                }
+                save_to_file_cache(region_cache_key, region_response_data)
 
                 logger.info(
                     f"Worker {thread_id}: Completed forecast for region {region} with {len(region_results)} points in {elapsed:.2f}s"
@@ -674,7 +650,10 @@ def get_all_forecasts():
             },
         }
 
-        # Cache the result
+        # Save to file cache
+        save_to_file_cache(cache_key, response_data)
+
+        # Cache in memory
         with cache_lock:
             forecast_cache[cache_key] = {
                 "data": response_data,
@@ -695,6 +674,204 @@ def get_all_forecasts():
 
     except Exception as e:
         logger.error(f"Error generating all forecasts: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/demand_forecast_ratio", methods=["GET"])
+def get_demand_forecast_ratio():
+    """
+    Get the ratio between forecasted demand and active drivers.
+    This helps evaluate the supply-demand balance for each region.
+    """
+    try:
+        # Get query parameters
+        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
+        hours = int(request.args.get("hours", "24"))
+        region = request.args.get("region")
+        force_refresh = request.args.get("refresh", "false").lower() == "true"
+
+        # Create cache key
+        cache_key = f"demand_driver_ratio_{data_type}_{hours}_{region}"
+
+        # Check file cache if not forcing refresh
+        if not force_refresh:
+            file_cache_data = load_from_file_cache(cache_key)
+            if file_cache_data:
+                return jsonify(file_cache_data)
+
+        # Load the active driver data from the JSON file
+        driver_data = {}
+        try:
+            file_path = os.path.join("data", f"driver_eda_{data_type}s_new_key.json")
+            if os.path.exists(file_path):
+                with open(file_path, "r") as f:
+                    driver_info = json.load(f)
+
+                # Convert to dictionary with ward_num/ac_num as keys
+                region_col = "ward_num" if data_type == "ward" else "ac_num"
+
+                # Aggregate driver data by region
+                for item in driver_info:
+                    if region_col in item and "active_drvr" in item:
+                        region_id = str(item[region_col])
+
+                        if region_id not in driver_data:
+                            driver_data[region_id] = {
+                                "active_drvr": 0,
+                                "drvr_notonride": 0,
+                                "drvr_onride": 0,
+                                "region": region_id,
+                            }
+
+                        # Sum up driver counts
+                        driver_data[region_id]["active_drvr"] += int(
+                            item.get("active_drvr", 0)
+                        )
+                        driver_data[region_id]["drvr_notonride"] += int(
+                            item.get("drvr_notonride", 0)
+                        )
+                        driver_data[region_id]["drvr_onride"] += int(
+                            item.get("drvr_onride", 0)
+                        )
+            else:
+                logger.warning(f"Driver data file not found: {file_path}")
+        except Exception as e:
+            logger.error(f"Error loading driver data: {e}")
+            logger.error(traceback.format_exc())
+            return jsonify({"error": f"Error loading driver data: {str(e)}"}), 500
+
+        if not driver_data:
+            return jsonify({"error": "No driver data available"}), 404
+
+        # Generate forecast for the same regions
+        forecast_df = forecaster.forecast_next_hours(hours, data_type, region)
+
+        if forecast_df is None or forecast_df.empty:
+            return jsonify({"error": "Failed to generate forecast"}), 500
+
+        # Calculate ratios hour by hour
+        region_col = "ward_num" if data_type == "ward" else "ac_num"
+
+        # Prepare the result structure
+        hourly_ratios = {}
+
+        # Process each hour of the forecast
+        for _, row in forecast_df.iterrows():
+            region_id = str(row[region_col])
+            hour = row["datetime"]
+            forecast_requests = row["forecast_requests"]
+
+            if region_id in driver_data:
+                active_drivers = driver_data[region_id]["active_drvr"]
+                available_drivers = driver_data[region_id]["drvr_notonride"]
+
+                # Calculate ratios
+                demand_supply_ratio = 0
+                if active_drivers > 0:
+                    demand_supply_ratio = forecast_requests / active_drivers
+
+                available_ratio = 0
+                if available_drivers > 0:
+                    available_ratio = forecast_requests / available_drivers
+
+                # Initialize region in hourly_ratios if not exists
+                if region_id not in hourly_ratios:
+                    hourly_ratios[region_id] = []
+
+                # Add hourly data
+                hourly_ratios[region_id].append(
+                    {
+                        "datetime": hour.isoformat(),
+                        "forecast_requests": int(forecast_requests),
+                        "active_drivers": active_drivers,
+                        "available_drivers": available_drivers,
+                        "demand_supply_ratio": round(demand_supply_ratio, 2),
+                        "available_ratio": round(available_ratio, 2),
+                    }
+                )
+
+        # Calculate overall statistics
+        all_hours_data = []
+        for region_data in hourly_ratios.values():
+            all_hours_data.extend(region_data)
+
+        total_forecast = sum(item["forecast_requests"] for item in all_hours_data)
+        total_drivers = (
+            sum(item["active_drivers"] for item in all_hours_data) / len(all_hours_data)
+            if all_hours_data
+            else 0
+        )
+        total_available = (
+            sum(item["available_drivers"] for item in all_hours_data)
+            / len(all_hours_data)
+            if all_hours_data
+            else 0
+        )
+
+        overall_ratio = 0
+        if total_drivers > 0:
+            overall_ratio = total_forecast / (total_drivers * len(hourly_ratios))
+
+        available_ratio = 0
+        if total_available > 0:
+            available_ratio = total_forecast / (total_available * len(hourly_ratios))
+
+        # Find peak demand hours
+        peak_hours = []
+        if all_hours_data:
+            # Group by hour
+            hour_groups = {}
+            for item in all_hours_data:
+                hour = datetime.fromisoformat(item["datetime"]).hour
+                if hour not in hour_groups:
+                    hour_groups[hour] = []
+                hour_groups[hour].append(item)
+
+            # Calculate average demand for each hour
+            hour_demand = {}
+            for hour, items in hour_groups.items():
+                hour_demand[hour] = sum(
+                    item["forecast_requests"] for item in items
+                ) / len(items)
+
+            # Get top 3 peak hours
+            peak_hours = sorted(hour_demand.items(), key=lambda x: x[1], reverse=True)[
+                :3
+            ]
+            peak_hours = [
+                {"hour": hour, "avg_demand": round(demand, 2)}
+                for hour, demand in peak_hours
+            ]
+
+        response_data = {
+            "hourly_ratios": hourly_ratios,
+            "summary": {
+                "total_forecast_requests": total_forecast,
+                "avg_active_drivers": round(total_drivers, 2),
+                "avg_available_drivers": round(total_available, 2),
+                "overall_demand_supply_ratio": round(overall_ratio, 2),
+                "overall_available_ratio": round(available_ratio, 2),
+                "regions_count": len(hourly_ratios),
+                "hours_count": hours,
+                "peak_hours": peak_hours,
+            },
+            "metadata": {
+                "data_type": data_type,
+                "hours": hours,
+                "region": region,
+                "generated_at": datetime.now().isoformat(),
+                "driver_data_source": file_path,
+            },
+        }
+
+        # Save to file cache
+        save_to_file_cache(cache_key, response_data)
+
+        return jsonify(response_data)
+
+    except Exception as e:
+        logger.error(f"Error calculating demand-driver ratio: {e}")
         logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 

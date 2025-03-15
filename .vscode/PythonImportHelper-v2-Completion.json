@@ -119,6 +119,30 @@
         "documentation": {}
     },
     {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "sync_playwright",
         "importPath": "playwright.sync_api",
         "description": "playwright.sync_api",
@@ -345,6 +369,30 @@
         "documentation": {}
     },
     {
+        "label": "Flask",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "jsonify",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "request",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
         "label": "load_and_preprocess_data",
         "importPath": "model",
         "description": "model",
@@ -390,6 +438,65 @@
         "description": "model",
         "isExtraImport": true,
         "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "CORS",
+        "importPath": "flask_cors",
+        "description": "flask_cors",
+        "isExtraImport": true,
+        "detail": "flask_cors",
+        "documentation": {}
+    },
+    {
+        "label": "functools",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "functools",
+        "description": "functools",
+        "detail": "functools",
+        "documentation": {}
+    },
+    {
+        "label": "run_simple",
+        "importPath": "werkzeug.serving",
+        "description": "werkzeug.serving",
+        "isExtraImport": true,
+        "detail": "werkzeug.serving",
+        "documentation": {}
+    },
+    {
+        "label": "re",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "re",
+        "description": "re",
+        "detail": "re",
+        "documentation": {}
+    },
+    {
+        "label": "concurrent.futures",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "concurrent.futures",
+        "description": "concurrent.futures",
+        "detail": "concurrent.futures",
+        "documentation": {}
+    },
+    {
+        "label": "RideDataManager",
+        "importPath": "panda",
+        "description": "panda",
+        "isExtraImport": true,
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "RideRequestForecast",
+        "importPath": "panda",
+        "description": "panda",
+        "isExtraImport": true,
+        "detail": "panda",
         "documentation": {}
     },
     {
@@ -1004,6 +1111,177 @@
         "documentation": {}
     },
     {
+        "label": "_Known",
+        "kind": 6,
+        "importPath": "nextjs-example.node_modules.flatted.python.flatted",
+        "description": "nextjs-example.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _Known:\n    def __init__(self):\n        self.key = []\n        self.value = []\nclass _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0",
+        "detail": "nextjs-example.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "_String",
+        "kind": 6,
+        "importPath": "nextjs-example.node_modules.flatted.python.flatted",
+        "description": "nextjs-example.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0\n    for _ in value:\n        keys.append(i)\n        i += 1\n    return keys",
+        "detail": "nextjs-example.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "parse",
+        "kind": 2,
+        "importPath": "nextjs-example.node_modules.flatted.python.flatted",
+        "description": "nextjs-example.node_modules.flatted.python.flatted",
+        "peekOfCode": "def parse(value, *args, **kwargs):\n    json = _json.loads(value, *args, **kwargs)\n    wrapped = []\n    for value in json:\n        wrapped.append(_wrap(value))\n    input = []\n    for value in wrapped:\n        if isinstance(value, _String):\n            input.append(value.value)\n        else:",
+        "detail": "nextjs-example.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "stringify",
+        "kind": 2,
+        "importPath": "nextjs-example.node_modules.flatted.python.flatted",
+        "description": "nextjs-example.node_modules.flatted.python.flatted",
+        "peekOfCode": "def stringify(value, *args, **kwargs):\n    known = _Known()\n    input = []\n    output = []\n    i = int(_index(known, input, value))\n    while i < len(input):\n        output.append(_transform(known, input, input[i]))\n        i += 1\n    return _json.dumps(output, *args, **kwargs)",
+        "detail": "nextjs-example.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "timed_cache",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def timed_cache(timeout_seconds=300):\n    def decorator(func):\n        cache = {}\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            key = str(args) + str(kwargs)\n            current_time = datetime.now()\n            with cache_lock:\n                # Check if result is in cache and not expired\n                if key in cache:",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "health_check",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def health_check():\n    \"\"\"Health check endpoint\"\"\"\n    return jsonify({\"status\": \"ok\", \"timestamp\": datetime.now().isoformat()})\n@app.route(\"/api/forecast\", methods=[\"GET\"])\ndef get_forecast():\n    \"\"\"Get forecast for the specified parameters\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "get_forecast",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def get_forecast():\n    \"\"\"Get forecast for the specified parameters\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))\n        region = request.args.get(\"region\")\n        # No longer convert region to integer - keep it as a string\n        # This allows for region identifiers like \"b_1\" or \"w_0\"\n        if region is not None:",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "get_regions",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def get_regions():\n    \"\"\"\n    Get available regions for a given type.\n    \"\"\"\n    try:\n        data_type = request.args.get(\"type\", \"ward\")\n        filter_type = request.args.get(\"filter\", \"all\")  # 'all', 'simple', 'b', 'w'\n        # Get the regions from the historical data\n        regions = []\n        # Get the historical data",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "get_historical_data",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def get_historical_data():\n    \"\"\"Get historical data for the specified parameters\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        region = request.args.get(\"region\")\n        hours = int(request.args.get(\"hours\", \"48\"))  # Default to last 48 hours\n        # Limit hours to prevent large responses\n        if hours > 168:  # 1 week\n            hours = 168",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "get_model_info",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def get_model_info():\n    \"\"\"Get information about the trained model\"\"\"\n    try:\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        # Check if model is loaded\n        if forecaster.model is None:\n            forecaster.load_model(data_type)\n        if forecaster.model is None:\n            return jsonify({\"error\": f\"No model available for {data_type}\"}), 404\n        # Get feature importance if available",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "retrain_model",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def retrain_model():\n    \"\"\"Retrain the model with the latest data\"\"\"\n    try:\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        # Fetch latest data\n        data_manager.fetch_all_endpoints()\n        # Retrain model\n        forecaster.train_model(data_type, force=True)\n        if forecaster.model is None:\n            return jsonify({\"error\": \"Failed to train model\"}), 500",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "clear_cache",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def clear_cache():\n    \"\"\"Clear the API cache\"\"\"\n    try:\n        with cache_lock:\n            forecast_cache.clear()\n        return jsonify(\n            {\n                \"status\": \"success\",\n                \"message\": \"Cache cleared successfully\",\n                \"timestamp\": datetime.now().isoformat(),",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "get_all_forecasts",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def get_all_forecasts():\n    \"\"\"Get forecast for all regions of the specified type\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))\n        filter_type = request.args.get(\n            \"filter\", \"all\"\n        )  # Optional filter for region types\n        max_workers = int(",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "logger = logging.getLogger(\"forecast_api\")\n# Create Flask app\napp = Flask(__name__)\nCORS(app)  # Enable CORS for all routes\n# Initialize data manager and forecaster\ndata_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "app = Flask(__name__)\nCORS(app)  # Enable CORS for all routes\n# Initialize data manager and forecaster\ndata_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Load historical data and models",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "data_manager",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "data_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "forecaster",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "forecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "forecast_cache",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "forecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:\n    logger.error(f\"Error loading data or models: {e}\")",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "cache_lock",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "cache_lock = threading.Lock()\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:\n    logger.error(f\"Error loading data or models: {e}\")\n    logger.error(traceback.format_exc())\n# Cache decorator with timeout",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
         "label": "RideDataManager",
         "kind": 6,
         "importPath": "panda",
@@ -1091,6 +1369,177 @@
         "description": "panda",
         "peekOfCode": "ENDPOINTS = [\n    \"trends_live_ward_new_key.json\",\n    \"trends_live_ca_new_key.json\",\n    \"driver_eda_wards_new_key.json\",\n    \"driver_eda_ca_new_key.json\",\n    \"funnel_live_ward_new_key.json\",\n    \"funnel_live_ca_new_key.json\",\n    \"funnel_cumulative_ward_new_key.json\",\n    \"funnel_cumulative_ca_new_key.json\",\n    \"cumulative_stats_new_key.json\",",
         "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "print_success",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def print_success(message):\n    print(f\"{GREEN}✓ {message}{RESET}\")\ndef print_error(message):\n    print(f\"{RED}✗ {message}{RESET}\")\ndef print_warning(message):\n    print(f\"{YELLOW}! {message}{RESET}\")\ndef print_info(message):\n    print(f\"{BLUE}ℹ {message}{RESET}\")\ndef test_health(base_url):\n    \"\"\"Test the health endpoint\"\"\"",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "print_error",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def print_error(message):\n    print(f\"{RED}✗ {message}{RESET}\")\ndef print_warning(message):\n    print(f\"{YELLOW}! {message}{RESET}\")\ndef print_info(message):\n    print(f\"{BLUE}ℹ {message}{RESET}\")\ndef test_health(base_url):\n    \"\"\"Test the health endpoint\"\"\"\n    try:\n        start_time = time.time()",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "print_warning",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def print_warning(message):\n    print(f\"{YELLOW}! {message}{RESET}\")\ndef print_info(message):\n    print(f\"{BLUE}ℹ {message}{RESET}\")\ndef test_health(base_url):\n    \"\"\"Test the health endpoint\"\"\"\n    try:\n        start_time = time.time()\n        response = requests.get(f\"{base_url}/health\", timeout=5)\n        elapsed = time.time() - start_time",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "print_info",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def print_info(message):\n    print(f\"{BLUE}ℹ {message}{RESET}\")\ndef test_health(base_url):\n    \"\"\"Test the health endpoint\"\"\"\n    try:\n        start_time = time.time()\n        response = requests.get(f\"{base_url}/health\", timeout=5)\n        elapsed = time.time() - start_time\n        if response.status_code == 200:\n            data = response.json()",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_health",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def test_health(base_url):\n    \"\"\"Test the health endpoint\"\"\"\n    try:\n        start_time = time.time()\n        response = requests.get(f\"{base_url}/health\", timeout=5)\n        elapsed = time.time() - start_time\n        if response.status_code == 200:\n            data = response.json()\n            print_success(f\"Health check passed in {elapsed:.2f}s: {data}\")\n            return True",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_regions",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def test_regions(base_url, data_type=\"ward\"):\n    \"\"\"Test the regions endpoint with different filters\"\"\"\n    try:\n        # Test with no filter (all regions)\n        start_time = time.time()\n        response = requests.get(f\"{base_url}/regions?type={data_type}\", timeout=10)\n        elapsed = time.time() - start_time\n        if response.status_code == 200:\n            data = response.json()\n            all_regions = data.get(\"regions\", [])",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_historical",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def test_historical(base_url, data_type=\"ward\", hours=24, region=\"1\"):\n    \"\"\"Test the historical endpoint\"\"\"\n    try:\n        start_time = time.time()\n        response = requests.get(\n            f\"{base_url}/historical?type={data_type}&hours={hours}&region={region}\",\n            timeout=20,\n        )\n        elapsed = time.time() - start_time\n        if response.status_code == 200:",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_forecast",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def test_forecast(base_url, data_type=\"ward\", hours=12, region=\"1\"):\n    \"\"\"Test the forecast endpoint\"\"\"\n    try:\n        print_info(\n            f\"Testing forecast for region {region}, this may take up to 60 seconds...\"\n        )\n        start_time = time.time()\n        response = requests.get(\n            f\"{base_url}/forecast?type={data_type}&hours={hours}&region={region}\",\n            timeout=60,",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_model_info",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def test_model_info(base_url, data_type=\"ward\"):\n    \"\"\"Test the model info endpoint\"\"\"\n    try:\n        start_time = time.time()\n        response = requests.get(f\"{base_url}/model/info?type={data_type}\", timeout=10)\n        elapsed = time.time() - start_time\n        if response.status_code == 200:\n            data = response.json()\n            print_success(\n                f\"Model info endpoint returned data in {elapsed:.2f}s: {data}\"",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_cache_clear",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def test_cache_clear(base_url):\n    \"\"\"Test the cache clear endpoint\"\"\"\n    try:\n        start_time = time.time()\n        response = requests.post(f\"{base_url}/cache/clear\", timeout=10)\n        elapsed = time.time() - start_time\n        if response.status_code == 200:\n            data = response.json()\n            print_success(f\"Cache clear endpoint succeeded in {elapsed:.2f}s: {data}\")\n            return True",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_string_region_forecast",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def test_string_region_forecast(base_url, data_type=\"ward\", hours=12):\n    \"\"\"Test the forecast endpoint with string-based region identifiers\"\"\"\n    # Test with a b_ prefixed region\n    b_region_success = False\n    try:\n        print_info(\"Testing forecast with b_ prefixed region...\")\n        response = requests.get(\n            f\"{base_url}/regions?type={data_type}&filter=b\", timeout=10\n        )\n        if response.status_code == 200:",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_forecast_all",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def test_forecast_all(\n    base_url, data_type=\"ward\", hours=12, filter_type=\"all\", workers=4\n):\n    \"\"\"Test the forecast/all endpoint that returns forecasts for all regions\"\"\"\n    try:\n        print_info(\n            f\"Testing forecast/all endpoint with filter={filter_type}, workers={workers}, this may take up to 90 seconds...\"\n        )\n        start_time = time.time()\n        response = requests.get(",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "def main():\n    parser = argparse.ArgumentParser(description=\"Test the NoCapRide API endpoints\")\n    parser.add_argument(\"--url\", default=API_BASE_URL, help=\"Base URL for the API\")\n    parser.add_argument(\n        \"--type\",\n        default=\"ward\",\n        choices=[\"ward\", \"ca\"],\n        help=\"Data type to use for testing\",\n    )\n    parser.add_argument(\"--region\", default=\"1\", help=\"Region to use for testing\")",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "API_BASE_URL",
+        "kind": 5,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "API_BASE_URL = \"http://localhost:8888/api\"\n# Colors for terminal output\nGREEN = \"\\033[92m\"\nRED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nBLUE = \"\\033[94m\"\nRESET = \"\\033[0m\"\ndef print_success(message):\n    print(f\"{GREEN}✓ {message}{RESET}\")\ndef print_error(message):",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "GREEN",
+        "kind": 5,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "GREEN = \"\\033[92m\"\nRED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nBLUE = \"\\033[94m\"\nRESET = \"\\033[0m\"\ndef print_success(message):\n    print(f\"{GREEN}✓ {message}{RESET}\")\ndef print_error(message):\n    print(f\"{RED}✗ {message}{RESET}\")\ndef print_warning(message):",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "RED",
+        "kind": 5,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "RED = \"\\033[91m\"\nYELLOW = \"\\033[93m\"\nBLUE = \"\\033[94m\"\nRESET = \"\\033[0m\"\ndef print_success(message):\n    print(f\"{GREEN}✓ {message}{RESET}\")\ndef print_error(message):\n    print(f\"{RED}✗ {message}{RESET}\")\ndef print_warning(message):\n    print(f\"{YELLOW}! {message}{RESET}\")",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "YELLOW",
+        "kind": 5,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "YELLOW = \"\\033[93m\"\nBLUE = \"\\033[94m\"\nRESET = \"\\033[0m\"\ndef print_success(message):\n    print(f\"{GREEN}✓ {message}{RESET}\")\ndef print_error(message):\n    print(f\"{RED}✗ {message}{RESET}\")\ndef print_warning(message):\n    print(f\"{YELLOW}! {message}{RESET}\")\ndef print_info(message):",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "BLUE",
+        "kind": 5,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "BLUE = \"\\033[94m\"\nRESET = \"\\033[0m\"\ndef print_success(message):\n    print(f\"{GREEN}✓ {message}{RESET}\")\ndef print_error(message):\n    print(f\"{RED}✗ {message}{RESET}\")\ndef print_warning(message):\n    print(f\"{YELLOW}! {message}{RESET}\")\ndef print_info(message):\n    print(f\"{BLUE}ℹ {message}{RESET}\")",
+        "detail": "test_api",
+        "documentation": {}
+    },
+    {
+        "label": "RESET",
+        "kind": 5,
+        "importPath": "test_api",
+        "description": "test_api",
+        "peekOfCode": "RESET = \"\\033[0m\"\ndef print_success(message):\n    print(f\"{GREEN}✓ {message}{RESET}\")\ndef print_error(message):\n    print(f\"{RED}✗ {message}{RESET}\")\ndef print_warning(message):\n    print(f\"{YELLOW}! {message}{RESET}\")\ndef print_info(message):\n    print(f\"{BLUE}ℹ {message}{RESET}\")\ndef test_health(base_url):",
+        "detail": "test_api",
         "documentation": {}
     }
 ]

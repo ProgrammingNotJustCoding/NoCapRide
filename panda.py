@@ -636,6 +636,7 @@ class RideRequestForecast:
 
             # Filter to a specific region if specified
             if region is not None:
+                # Convert region to string if it's not already
                 region_str = str(region)
                 df = df[df[region_col] == region_str]
 
@@ -647,7 +648,9 @@ class RideRequestForecast:
             if region is None:
                 regions = df[region_col].unique()
             else:
-                regions = [str(region)]
+                # Convert region to string if it's not already
+                region_str = str(region)
+                regions = [region_str]
 
             forecasts = []
 

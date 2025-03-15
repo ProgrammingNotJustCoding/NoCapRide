@@ -10,13 +10,25 @@ from playwright.sync_api import sync_playwright
 import schedule
 import numpy as np
 
+# Ensure the logs directory exists
+if not os.path.exists("logs"):
+    os.makedirs("logs")
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("fetch_log.txt"), logging.StreamHandler()],
+    handlers=[logging.FileHandler("logs/fetch_log.txt"), logging.StreamHandler()],
 )
 logger = logging.getLogger("fetch")
+
+# Create a separate handler for detailed output
+detailed_logger = logging.getLogger("fetch_detailed")
+detailed_logger.setLevel(logging.INFO)
+detailed_handler = logging.FileHandler("logs/fetch_output.log", mode="a")
+detailed_handler.setFormatter(logging.Formatter("%(asctime)s - %(message)s"))
+detailed_logger.addHandler(detailed_handler)
+detailed_logger.propagate = False  # Prevent double logging
 
 # Ensure the /data directory exists
 if not os.path.exists("data"):

@@ -8,11 +8,15 @@ import argparse
 import traceback
 import shutil
 
+# Ensure the logs directory exists
+if not os.path.exists("logs"):
+    os.makedirs("logs")
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("run_log.txt"), logging.StreamHandler()],
+    handlers=[logging.FileHandler("logs/run_log.txt"), logging.StreamHandler()],
 )
 logger = logging.getLogger("run")
 
@@ -205,7 +209,7 @@ def check_process(name):
                 return False
 
             # Print the last few lines of the log file
-            log_file_path = f"{name}_output.log"
+            log_file_path = f"logs/{name}_output.log"
             if os.path.exists(log_file_path):
                 logger.warning(f"Last lines of {name} log:")
                 try:
@@ -241,7 +245,7 @@ def start_all():
         # Check if fetch process is still running
         if "fetch" not in processes:
             logger.error("Fetch process failed to start or terminated early")
-            logger.error("Please check fetch_output.log for details")
+            logger.error("Please check logs/fetch_output.log for details")
             return False
 
         # Start train process
@@ -254,7 +258,7 @@ def start_all():
         # Check if train process is still running
         if "train" not in processes:
             logger.error("Train process failed to start or terminated early")
-            logger.error("Please check train_output.log for details")
+            logger.error("Please check logs/train_output.log for details")
             return False
 
         # Start serve process
@@ -263,7 +267,7 @@ def start_all():
         # Check if serve process is still running
         if "serve" not in processes:
             logger.error("Serve process failed to start or terminated early")
-            logger.error("Please check serve_output.log for details")
+            logger.error("Please check logs/serve_output.log for details")
             return False
 
         logger.info("All processes started")

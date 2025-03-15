@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 import schedule
-from model import load_and_preprocess_data, create_features, train_model
+from model import load_and_preprocess_data, create_features, train_models
 
 # Ensure the logs directory exists
 if not os.path.exists("logs"):
@@ -83,18 +83,29 @@ def train_and_save_model():
         # Load and preprocess the data
         merged_df = load_and_preprocess_data(trends_file, driver_file, funnel_file)
 
+        if merged_df is None:
+            logger.error("Failed to load and preprocess data")
+            return False
+
         # Create features
         df_with_features = create_features(merged_df)
 
-        # Train the model
-        model, features = train_model(df_with_features)
+        if df_with_features is None:
+            logger.error("Failed to create features")
+            return False
 
-        # Save the model and features
+        # Train models (both RandomForest and GradientBoosting)
+        trained_models = train_models(
+            df_with_features, target_variable="avg_earning_per_ride"
+        )
+
+        if trained_models is None:
+            logger.error("Failed to train models")
+            return False
+
+        # Save the models and features
         with open(MODEL_FILE, "wb") as f:
-            pickle.dump(model, f)
-
-        with open(FEATURES_FILE, "wb") as f:
-            pickle.dump(features, f)
+            pickle.dump(trained_models, f)
 
         # Save model metadata
         model_info = {
@@ -102,17 +113,34 @@ def train_and_save_model():
             "trends_file": trends_file,
             "driver_file": driver_file,
             "funnel_file": funnel_file,
-            "num_features": len(features),
+            "best_model": trained_models["best_model"],
+            "random_forest": {
+                "val_rmse": float(trained_models["random_forest"]["val_rmse"]),
+                "val_r2": float(trained_models["random_forest"]["val_r2"]),
+                "test_rmse": float(trained_models["random_forest"]["test_rmse"]),
+                "test_r2": float(trained_models["random_forest"]["test_r2"]),
+            },
+            "gradient_boosting": {
+                "val_rmse": float(trained_models["gradient_boosting"]["val_rmse"]),
+                "val_r2": float(trained_models["gradient_boosting"]["val_r2"]),
+                "test_rmse": float(trained_models["gradient_boosting"]["test_rmse"]),
+                "test_r2": float(trained_models["gradient_boosting"]["test_r2"]),
+            },
+            "num_features": len(trained_models["random_forest"]["features"]),
             "num_samples": len(df_with_features),
             "wards": merged_df["ward_num"].unique().tolist(),
-            "vehicle_types": merged_df["vehicle_type"].unique().tolist(),
+            "vehicle_types": (
+                merged_df["vehicle_type"].unique().tolist()
+                if "vehicle_type" in merged_df.columns
+                else []
+            ),
         }
 
         with open(MODEL_INFO_FILE, "w") as f:
             json.dump(model_info, f, indent=2)
 
         logger.info(
-            f"Model trained and saved successfully with {len(features)} features"
+            f"Model trained and saved successfully with {model_info['num_features']} features"
         )
         return True
 

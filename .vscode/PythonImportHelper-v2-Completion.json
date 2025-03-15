@@ -1,0 +1,938 @@
+[
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
+        "label": "time",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "logging",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "logging",
+        "description": "logging",
+        "detail": "logging",
+        "documentation": {}
+    },
+    {
+        "label": "traceback",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "traceback",
+        "description": "traceback",
+        "detail": "traceback",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "sync_playwright",
+        "importPath": "playwright.sync_api",
+        "description": "playwright.sync_api",
+        "isExtraImport": true,
+        "detail": "playwright.sync_api",
+        "documentation": {}
+    },
+    {
+        "label": "schedule",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "schedule",
+        "description": "schedule",
+        "detail": "schedule",
+        "documentation": {}
+    },
+    {
+        "label": "numpy",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "numpy",
+        "description": "numpy",
+        "detail": "numpy",
+        "documentation": {}
+    },
+    {
+        "label": "pandas",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pandas",
+        "description": "pandas",
+        "detail": "pandas",
+        "documentation": {}
+    },
+    {
+        "label": "RandomForestRegressor",
+        "importPath": "sklearn.ensemble",
+        "description": "sklearn.ensemble",
+        "isExtraImport": true,
+        "detail": "sklearn.ensemble",
+        "documentation": {}
+    },
+    {
+        "label": "GradientBoostingRegressor",
+        "importPath": "sklearn.ensemble",
+        "description": "sklearn.ensemble",
+        "isExtraImport": true,
+        "detail": "sklearn.ensemble",
+        "documentation": {}
+    },
+    {
+        "label": "RandomForestRegressor",
+        "importPath": "sklearn.ensemble",
+        "description": "sklearn.ensemble",
+        "isExtraImport": true,
+        "detail": "sklearn.ensemble",
+        "documentation": {}
+    },
+    {
+        "label": "mean_squared_error",
+        "importPath": "sklearn.metrics",
+        "description": "sklearn.metrics",
+        "isExtraImport": true,
+        "detail": "sklearn.metrics",
+        "documentation": {}
+    },
+    {
+        "label": "r2_score",
+        "importPath": "sklearn.metrics",
+        "description": "sklearn.metrics",
+        "isExtraImport": true,
+        "detail": "sklearn.metrics",
+        "documentation": {}
+    },
+    {
+        "label": "mean_squared_error",
+        "importPath": "sklearn.metrics",
+        "description": "sklearn.metrics",
+        "isExtraImport": true,
+        "detail": "sklearn.metrics",
+        "documentation": {}
+    },
+    {
+        "label": "r2_score",
+        "importPath": "sklearn.metrics",
+        "description": "sklearn.metrics",
+        "isExtraImport": true,
+        "detail": "sklearn.metrics",
+        "documentation": {}
+    },
+    {
+        "label": "StandardScaler",
+        "importPath": "sklearn.preprocessing",
+        "description": "sklearn.preprocessing",
+        "isExtraImport": true,
+        "detail": "sklearn.preprocessing",
+        "documentation": {}
+    },
+    {
+        "label": "OneHotEncoder",
+        "importPath": "sklearn.preprocessing",
+        "description": "sklearn.preprocessing",
+        "isExtraImport": true,
+        "detail": "sklearn.preprocessing",
+        "documentation": {}
+    },
+    {
+        "label": "ColumnTransformer",
+        "importPath": "sklearn.compose",
+        "description": "sklearn.compose",
+        "isExtraImport": true,
+        "detail": "sklearn.compose",
+        "documentation": {}
+    },
+    {
+        "label": "Pipeline",
+        "importPath": "sklearn.pipeline",
+        "description": "sklearn.pipeline",
+        "isExtraImport": true,
+        "detail": "sklearn.pipeline",
+        "documentation": {}
+    },
+    {
+        "label": "train_test_split",
+        "importPath": "sklearn.model_selection",
+        "description": "sklearn.model_selection",
+        "isExtraImport": true,
+        "detail": "sklearn.model_selection",
+        "documentation": {}
+    },
+    {
+        "label": "holidays",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "holidays",
+        "description": "holidays",
+        "detail": "holidays",
+        "documentation": {}
+    },
+    {
+        "label": "pickle",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pickle",
+        "description": "pickle",
+        "detail": "pickle",
+        "documentation": {}
+    },
+    {
+        "label": "subprocess",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "subprocess",
+        "description": "subprocess",
+        "detail": "subprocess",
+        "documentation": {}
+    },
+    {
+        "label": "signal",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "signal",
+        "description": "signal",
+        "detail": "signal",
+        "documentation": {}
+    },
+    {
+        "label": "argparse",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "argparse",
+        "description": "argparse",
+        "detail": "argparse",
+        "documentation": {}
+    },
+    {
+        "label": "shutil",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "shutil",
+        "description": "shutil",
+        "detail": "shutil",
+        "documentation": {}
+    },
+    {
+        "label": "threading",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "threading",
+        "description": "threading",
+        "detail": "threading",
+        "documentation": {}
+    },
+    {
+        "label": "Flask",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "request",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "jsonify",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "load_and_preprocess_data",
+        "importPath": "model",
+        "description": "model",
+        "isExtraImport": true,
+        "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "create_features",
+        "importPath": "model",
+        "description": "model",
+        "isExtraImport": true,
+        "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "predict_earnings",
+        "importPath": "model",
+        "description": "model",
+        "isExtraImport": true,
+        "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "load_and_preprocess_data",
+        "importPath": "model",
+        "description": "model",
+        "isExtraImport": true,
+        "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "create_features",
+        "importPath": "model",
+        "description": "model",
+        "isExtraImport": true,
+        "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "train_models",
+        "importPath": "model",
+        "description": "model",
+        "isExtraImport": true,
+        "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "capture_endpoints",
+        "kind": 2,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "def capture_endpoints(url):\n    \"\"\"Capture all API endpoints from the webpage\"\"\"\n    logger.info(f\"Capturing endpoints from {url}\")\n    try:\n        with sync_playwright() as p:\n            browser = p.chromium.launch(headless=True)\n            context = browser.new_context()\n            page = context.new_page()\n            endpoints = []\n            def log_request(request):",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "fetch_and_save",
+        "kind": 2,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "def fetch_and_save(endpoint):\n    \"\"\"Fetch data from an endpoint and save it to a file\"\"\"\n    try:\n        # Perform the fetch request\n        logger.info(f\"Fetching data from {endpoint}\")\n        response = requests.get(endpoint, timeout=30)  # Add timeout\n        # Check if the request was successful\n        if response.status_code == 200:\n            # Extract the endpoint name for the file name\n            endpoint_name = endpoint.split(\"/\")[-1]",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "initialize_endpoints",
+        "kind": 2,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "def initialize_endpoints():\n    \"\"\"Initialize by discovering all endpoints and saving them\"\"\"\n    global discovered_endpoints\n    try:\n        # Check if we already have saved endpoints\n        if os.path.exists(ENDPOINTS_FILE):\n            with open(ENDPOINTS_FILE, \"r\") as f:\n                discovered_endpoints = json.load(f)\n            logger.info(f\"Loaded {len(discovered_endpoints)} endpoints from file\")\n        else:",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "fetch_all_endpoints",
+        "kind": 2,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "def fetch_all_endpoints():\n    \"\"\"Fetch data from all known endpoints\"\"\"\n    try:\n        logger.info(f\"Fetching data from {len(discovered_endpoints)} endpoints\")\n        success_count = 0\n        for endpoint in discovered_endpoints:\n            if fetch_and_save(endpoint):\n                success_count += 1\n        logger.info(\n            f\"Successfully fetched {success_count}/{len(discovered_endpoints)} endpoints\"",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "create_sample_data",
+        "kind": 2,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "def create_sample_data():\n    \"\"\"Create sample data files for testing\"\"\"\n    try:\n        logger.info(\"Creating sample data files\")\n        # Sample trends data\n        trends_data = []\n        for ward_num in range(170, 180):\n            for hour in range(24):\n                trends_data.append(\n                    {",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "scheduled_fetch",
+        "kind": 2,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "def scheduled_fetch():\n    \"\"\"Function to be called by the scheduler\"\"\"\n    try:\n        logger.info(\"Running scheduled fetch\")\n        success = fetch_all_endpoints()\n        if success:\n            logger.info(\"Scheduled fetch completed successfully\")\n        else:\n            logger.error(\"Scheduled fetch failed\")\n    except Exception as e:",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "def main():\n    \"\"\"Main function to run the continuous fetching process\"\"\"\n    try:\n        logger.info(\"Starting fetch service\")\n        # Initialize endpoints\n        if not initialize_endpoints():\n            logger.error(\"Failed to initialize endpoints, exiting\")\n            sys.exit(1)\n        # Schedule fetching every 2 minutes\n        schedule.every(2).minutes.do(scheduled_fetch)",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "logger = logging.getLogger(\"fetch\")\n# Ensure the /data directory exists\nif not os.path.exists(\"data\"):\n    os.makedirs(\"data\")\n# Store discovered endpoints\nENDPOINTS_FILE = \"data/endpoints.json\"\ndiscovered_endpoints = []\ndef capture_endpoints(url):\n    \"\"\"Capture all API endpoints from the webpage\"\"\"\n    logger.info(f\"Capturing endpoints from {url}\")",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "ENDPOINTS_FILE",
+        "kind": 5,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "ENDPOINTS_FILE = \"data/endpoints.json\"\ndiscovered_endpoints = []\ndef capture_endpoints(url):\n    \"\"\"Capture all API endpoints from the webpage\"\"\"\n    logger.info(f\"Capturing endpoints from {url}\")\n    try:\n        with sync_playwright() as p:\n            browser = p.chromium.launch(headless=True)\n            context = browser.new_context()\n            page = context.new_page()",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "discovered_endpoints",
+        "kind": 5,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "discovered_endpoints = []\ndef capture_endpoints(url):\n    \"\"\"Capture all API endpoints from the webpage\"\"\"\n    logger.info(f\"Capturing endpoints from {url}\")\n    try:\n        with sync_playwright() as p:\n            browser = p.chromium.launch(headless=True)\n            context = browser.new_context()\n            page = context.new_page()\n            endpoints = []",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "load_and_preprocess_data",
+        "kind": 2,
+        "importPath": "models.model",
+        "description": "models.model",
+        "peekOfCode": "def load_and_preprocess_data(trends_file, driver_file, funnel_file=None):\n    \"\"\"\n    Load and preprocess data from the given files\n    Args:\n        trends_file: Path to the trends data file\n        driver_file: Path to the driver data file\n        funnel_file: Path to the funnel data file (optional)\n    Returns:\n        Preprocessed DataFrame with all features\n    \"\"\"",
+        "detail": "models.model",
+        "documentation": {}
+    },
+    {
+        "label": "create_features",
+        "kind": 2,
+        "importPath": "models.model",
+        "description": "models.model",
+        "peekOfCode": "def create_features(df):\n    \"\"\"\n    Create features for model training\n    Args:\n        df: DataFrame with preprocessed data\n    Returns:\n        DataFrame with features for model training\n    \"\"\"\n    try:\n        df = df.copy()",
+        "detail": "models.model",
+        "documentation": {}
+    },
+    {
+        "label": "train_models",
+        "kind": 2,
+        "importPath": "models.model",
+        "description": "models.model",
+        "peekOfCode": "def train_models(df, target_variable=\"avg_earning_per_ride\"):\n    \"\"\"\n    Train multiple models on the given data\n    Args:\n        df: DataFrame with features\n        target_variable: Target variable to predict\n    Returns:\n        Dictionary of trained models and their features\n    \"\"\"\n    try:",
+        "detail": "models.model",
+        "documentation": {}
+    },
+    {
+        "label": "predict_earnings",
+        "kind": 2,
+        "importPath": "models.model",
+        "description": "models.model",
+        "peekOfCode": "def predict_earnings(models, input_data, model_name=None):\n    \"\"\"\n    Make predictions using the trained models\n    Args:\n        models: Dictionary of trained models from train_models\n        input_data: DataFrame with input features\n        model_name: Name of the model to use for prediction (if None, use the best model)\n    Returns:\n        DataFrame with predictions\n    \"\"\"",
+        "detail": "models.model",
+        "documentation": {}
+    },
+    {
+        "label": "load_and_preprocess_data",
+        "kind": 2,
+        "importPath": "models.old-demand-area",
+        "description": "models.old-demand-area",
+        "peekOfCode": "def load_and_preprocess_data(trends_file, driver_file, funnel_file=None):\n    try:\n        trends_df = pd.read_json(trends_file)\n        driver_df = pd.read_json(driver_file)\n        print(\"\\nData Loading Diagnostics:\")\n        print(\"Trends DataFrame columns:\", trends_df.columns)\n        print(\"Driver DataFrame columns:\", driver_df.columns)\n        print(\"\\nTrends DataFrame sample:\")\n        print(trends_df.head())\n        print(\"\\nDriver DataFrame sample:\")",
+        "detail": "models.old-demand-area",
+        "documentation": {}
+    },
+    {
+        "label": "create_features",
+        "kind": 2,
+        "importPath": "models.old-demand-area",
+        "description": "models.old-demand-area",
+        "peekOfCode": "def create_features(df):\n    df = df.copy()\n    new_features = {}\n    new_features[\"date\"] = pd.to_datetime(df[\"date\"])\n    new_features[\"hour\"] = df[\"hour\"].astype(int)\n    new_features[\"day_of_week\"] = new_features[\"date\"].dt.dayofweek\n    new_features[\"day_of_month\"] = new_features[\"date\"].dt.day\n    new_features[\"month\"] = new_features[\"date\"].dt.month\n    new_features[\"is_weekend\"] = new_features[\"day_of_week\"].apply(\n        lambda x: 1 if x >= 5 else 0",
+        "detail": "models.old-demand-area",
+        "documentation": {}
+    },
+    {
+        "label": "train_model",
+        "kind": 2,
+        "importPath": "models.old-demand-area",
+        "description": "models.old-demand-area",
+        "peekOfCode": "def train_model(df, target_variable=\"demand_supply_ratio\"):\n    try:\n        exclude_cols = [\n            \"date\",\n            target_variable,\n            \"booking\",\n            \"done_ride\",\n            \"earning\",\n            \"cancel_ride\",\n            \"drvr_cancel\",",
+        "detail": "models.old-demand-area",
+        "documentation": {}
+    },
+    {
+        "label": "predict_and_recommend",
+        "kind": 2,
+        "importPath": "models.old-demand-area",
+        "description": "models.old-demand-area",
+        "peekOfCode": "def predict_and_recommend(\n    model,\n    features,\n    user_time,\n    user_location,\n    user_vehicle_type,\n    all_wards,\n    df,\n    original_df,\n):",
+        "detail": "models.old-demand-area",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "models.old-demand-area",
+        "description": "models.old-demand-area",
+        "peekOfCode": "def main(\n    trends_file, driver_file, funnel_file, user_time, user_location, user_vehicle_type\n):\n    try:\n        merged_df = load_and_preprocess_data(trends_file, driver_file, funnel_file)\n        df_with_features = create_features(merged_df)\n        print(\"\\nData Overview:\")\n        print(\n            f\"Date range: {df_with_features['date'].min()} to {df_with_features['date'].max()}\"\n        )",
+        "detail": "models.old-demand-area",
+        "documentation": {}
+    },
+    {
+        "label": "check_dependencies",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def check_dependencies():\n    \"\"\"Check if all required dependencies are installed\"\"\"\n    try:\n        # Check Python packages\n        required_packages = [\n            \"pandas\",\n            \"numpy\",\n            \"sklearn\",\n            \"flask\",\n            \"schedule\",",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "start_process",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def start_process(name, command):\n    \"\"\"Start a subprocess and return the process object\"\"\"\n    try:\n        logger.info(f\"Starting {name} process: {command}\")\n        # Create log file\n        log_file = open(f\"{name}_output.log\", \"w\")\n        # Start the process\n        process = subprocess.Popen(\n            command,\n            stdout=log_file,",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "stop_process",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def stop_process(name):\n    \"\"\"Stop a running process\"\"\"\n    if name in processes:\n        process_info = processes[name]\n        process = process_info[\"process\"]\n        try:\n            logger.info(f\"Stopping {name} process (PID {process.pid})\")\n            # Send SIGTERM to the process group\n            os.killpg(os.getpgid(process.pid), signal.SIGTERM)\n            # Wait for process to terminate",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "check_process",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def check_process(name):\n    \"\"\"Check if a process is still running and restart if needed\"\"\"\n    if name in processes:\n        process_info = processes[name]\n        process = process_info[\"process\"]\n        # Check if process is still running\n        if process.poll() is not None:\n            # Process has terminated\n            exit_code = process.returncode\n            logger.warning(f\"{name} process has terminated with code {exit_code}\")",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "start_all",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def start_all():\n    \"\"\"Start all required processes\"\"\"\n    try:\n        # Start fetch process\n        start_process(\"fetch\", \"python fetch.py\")\n        # Wait for initial data to be fetched\n        logger.info(\"Waiting for initial data to be fetched...\")\n        time.sleep(10)\n        # Check if fetch process is still running\n        if \"fetch\" not in processes:",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "stop_all",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def stop_all():\n    \"\"\"Stop all running processes\"\"\"\n    for name in list(processes.keys()):\n        stop_process(name)\n    logger.info(\"All processes stopped\")\ndef monitor_processes():\n    \"\"\"Monitor all processes and restart if needed\"\"\"\n    while True:\n        try:\n            for name in list(processes.keys()):",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "monitor_processes",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def monitor_processes():\n    \"\"\"Monitor all processes and restart if needed\"\"\"\n    while True:\n        try:\n            for name in list(processes.keys()):\n                check_process(name)\n            # If all processes have failed too many times, exit\n            if all(count > MAX_RESTART_ATTEMPTS for count in restart_counts.values()):\n                logger.error(\"All processes have failed too many times, exiting\")\n                return",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "parse_args",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def parse_args():\n    \"\"\"Parse command line arguments\"\"\"\n    parser = argparse.ArgumentParser(description=\"Run the demand prediction system\")\n    parser.add_argument(\n        \"--fetch-only\", action=\"store_true\", help=\"Run only the fetch process\"\n    )\n    parser.add_argument(\n        \"--train-only\", action=\"store_true\", help=\"Run only the train process\"\n    )\n    parser.add_argument(",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "reset_data",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def reset_data():\n    \"\"\"Reset all data and models\"\"\"\n    try:\n        logger.info(\"Resetting all data and models\")\n        # Remove data directory\n        if os.path.exists(\"data\"):\n            shutil.rmtree(\"data\")\n            logger.info(\"Removed data directory\")\n        # Remove models directory\n        if os.path.exists(\"models\"):",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "def main():\n    \"\"\"Main function\"\"\"\n    args = parse_args()\n    try:\n        logger.info(\"Starting demand prediction system\")\n        # Check dependencies\n        if not check_dependencies():\n            logger.error(\"Dependency check failed, exiting\")\n            return\n        # Reset data if requested",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "logger = logging.getLogger(\"run\")\n# Global variables\nprocesses = {}\nMAX_RESTART_ATTEMPTS = 3\nrestart_counts = {}\ndef check_dependencies():\n    \"\"\"Check if all required dependencies are installed\"\"\"\n    try:\n        # Check Python packages\n        required_packages = [",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "processes",
+        "kind": 5,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "processes = {}\nMAX_RESTART_ATTEMPTS = 3\nrestart_counts = {}\ndef check_dependencies():\n    \"\"\"Check if all required dependencies are installed\"\"\"\n    try:\n        # Check Python packages\n        required_packages = [\n            \"pandas\",\n            \"numpy\",",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "MAX_RESTART_ATTEMPTS",
+        "kind": 5,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "MAX_RESTART_ATTEMPTS = 3\nrestart_counts = {}\ndef check_dependencies():\n    \"\"\"Check if all required dependencies are installed\"\"\"\n    try:\n        # Check Python packages\n        required_packages = [\n            \"pandas\",\n            \"numpy\",\n            \"sklearn\",",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "restart_counts",
+        "kind": 5,
+        "importPath": "models.run",
+        "description": "models.run",
+        "peekOfCode": "restart_counts = {}\ndef check_dependencies():\n    \"\"\"Check if all required dependencies are installed\"\"\"\n    try:\n        # Check Python packages\n        required_packages = [\n            \"pandas\",\n            \"numpy\",\n            \"sklearn\",\n            \"flask\",",
+        "detail": "models.run",
+        "documentation": {}
+    },
+    {
+        "label": "load_model",
+        "kind": 2,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "def load_model():\n    \"\"\"Load the trained model from disk\"\"\"\n    global models, model_info\n    try:\n        if os.path.exists(MODEL_FILE) and os.path.exists(MODEL_INFO_FILE):\n            with open(MODEL_FILE, \"rb\") as f:\n                models = pickle.load(f)\n            with open(MODEL_INFO_FILE, \"r\") as f:\n                model_info = json.load(f)\n            logger.info(",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "load_data",
+        "kind": 2,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "def load_data():\n    \"\"\"Load and preprocess the latest data\"\"\"\n    global data\n    try:\n        # Find the latest data files\n        data_dir = \"data\"\n        trends_file = None\n        driver_file = None\n        funnel_file = None\n        for file in os.listdir(data_dir):",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "data_refresh_thread",
+        "kind": 2,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "def data_refresh_thread():\n    \"\"\"Thread function to periodically refresh the data\"\"\"\n    while True:\n        try:\n            load_data()\n            time.sleep(DATA_REFRESH_INTERVAL)\n        except Exception as e:\n            logger.error(f\"Error in data refresh thread: {e}\")\n            logger.error(traceback.format_exc())\n            time.sleep(10)  # Wait a bit before retrying",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "get_ward_recommendations",
+        "kind": 2,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "def get_ward_recommendations(user_time, user_location, user_vehicle_type):\n    \"\"\"Get recommendations for the best wards based on earnings potential\"\"\"\n    global models, data\n    try:\n        if models is None or data is None:\n            return {\"error\": \"Model or data not loaded\"}, 500\n        # Get the merged data and feature data\n        merged_df = data[\"merged_df\"]\n        feature_df = data[\"feature_df\"]\n        # Convert user_time to datetime",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "predict",
+        "kind": 2,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "def predict():\n    \"\"\"API endpoint to get predictions\"\"\"\n    try:\n        # Get request data\n        request_data = request.get_json()\n        # Check required parameters\n        if not request_data:\n            return jsonify({\"error\": \"No data provided\"}), 400\n        # Get parameters\n        user_time = request_data.get(\"user_time\", datetime.now().isoformat())",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "health",
+        "kind": 2,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "def health():\n    \"\"\"API endpoint to check the health of the service\"\"\"\n    global models, data\n    status = {\n        \"status\": \"healthy\",\n        \"model_loaded\": models is not None,\n        \"data_loaded\": data is not None,\n    }\n    if models is not None and \"best_model\" in models:\n        status[\"best_model\"] = models[\"best_model\"]",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "def main():\n    \"\"\"Main function to start the API server\"\"\"\n    logger.info(\"Starting API server\")\n    # Load the model\n    if not load_model():\n        logger.error(\"Failed to load model, exiting\")\n        sys.exit(1)\n    # Load initial data\n    if not load_data():\n        logger.warning(\"Failed to load initial data, will retry in background\")",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_logger",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "detailed_logger = logging.getLogger(\"train_detailed\")\ndetailed_logger.setLevel(logging.INFO)\ndetailed_handler = logging.FileHandler(\"logs/serve_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\nlogger = logging.getLogger(\"serve\")\n# Global variables\nMODEL_FILE = \"models/demand_model.pkl\"\nMODEL_INFO_FILE = \"models/model_info.json\"",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_handler",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "detailed_handler = logging.FileHandler(\"logs/serve_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\nlogger = logging.getLogger(\"serve\")\n# Global variables\nMODEL_FILE = \"models/demand_model.pkl\"\nMODEL_INFO_FILE = \"models/model_info.json\"\nDATA_REFRESH_INTERVAL = 60  # seconds\n# Global data and model objects",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_logger.propagate",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "detailed_logger.propagate = False  # Prevent double logging\nlogger = logging.getLogger(\"serve\")\n# Global variables\nMODEL_FILE = \"models/demand_model.pkl\"\nMODEL_INFO_FILE = \"models/model_info.json\"\nDATA_REFRESH_INTERVAL = 60  # seconds\n# Global data and model objects\nmodels = None\nmodel_info = None\ndata = None",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "logger = logging.getLogger(\"serve\")\n# Global variables\nMODEL_FILE = \"models/demand_model.pkl\"\nMODEL_INFO_FILE = \"models/model_info.json\"\nDATA_REFRESH_INTERVAL = 60  # seconds\n# Global data and model objects\nmodels = None\nmodel_info = None\ndata = None\ndata_lock = threading.Lock()",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "MODEL_FILE",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "MODEL_FILE = \"models/demand_model.pkl\"\nMODEL_INFO_FILE = \"models/model_info.json\"\nDATA_REFRESH_INTERVAL = 60  # seconds\n# Global data and model objects\nmodels = None\nmodel_info = None\ndata = None\ndata_lock = threading.Lock()\napp = Flask(__name__)\ndef load_model():",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "MODEL_INFO_FILE",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "MODEL_INFO_FILE = \"models/model_info.json\"\nDATA_REFRESH_INTERVAL = 60  # seconds\n# Global data and model objects\nmodels = None\nmodel_info = None\ndata = None\ndata_lock = threading.Lock()\napp = Flask(__name__)\ndef load_model():\n    \"\"\"Load the trained model from disk\"\"\"",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "DATA_REFRESH_INTERVAL",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "DATA_REFRESH_INTERVAL = 60  # seconds\n# Global data and model objects\nmodels = None\nmodel_info = None\ndata = None\ndata_lock = threading.Lock()\napp = Flask(__name__)\ndef load_model():\n    \"\"\"Load the trained model from disk\"\"\"\n    global models, model_info",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "models = None\nmodel_info = None\ndata = None\ndata_lock = threading.Lock()\napp = Flask(__name__)\ndef load_model():\n    \"\"\"Load the trained model from disk\"\"\"\n    global models, model_info\n    try:\n        if os.path.exists(MODEL_FILE) and os.path.exists(MODEL_INFO_FILE):",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "model_info",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "model_info = None\ndata = None\ndata_lock = threading.Lock()\napp = Flask(__name__)\ndef load_model():\n    \"\"\"Load the trained model from disk\"\"\"\n    global models, model_info\n    try:\n        if os.path.exists(MODEL_FILE) and os.path.exists(MODEL_INFO_FILE):\n            with open(MODEL_FILE, \"rb\") as f:",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "data",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "data = None\ndata_lock = threading.Lock()\napp = Flask(__name__)\ndef load_model():\n    \"\"\"Load the trained model from disk\"\"\"\n    global models, model_info\n    try:\n        if os.path.exists(MODEL_FILE) and os.path.exists(MODEL_INFO_FILE):\n            with open(MODEL_FILE, \"rb\") as f:\n                models = pickle.load(f)",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "data_lock",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "data_lock = threading.Lock()\napp = Flask(__name__)\ndef load_model():\n    \"\"\"Load the trained model from disk\"\"\"\n    global models, model_info\n    try:\n        if os.path.exists(MODEL_FILE) and os.path.exists(MODEL_INFO_FILE):\n            with open(MODEL_FILE, \"rb\") as f:\n                models = pickle.load(f)\n            with open(MODEL_INFO_FILE, \"r\") as f:",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "models.serve",
+        "description": "models.serve",
+        "peekOfCode": "app = Flask(__name__)\ndef load_model():\n    \"\"\"Load the trained model from disk\"\"\"\n    global models, model_info\n    try:\n        if os.path.exists(MODEL_FILE) and os.path.exists(MODEL_INFO_FILE):\n            with open(MODEL_FILE, \"rb\") as f:\n                models = pickle.load(f)\n            with open(MODEL_INFO_FILE, \"r\") as f:\n                model_info = json.load(f)",
+        "detail": "models.serve",
+        "documentation": {}
+    },
+    {
+        "label": "find_latest_data_files",
+        "kind": 2,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "def find_latest_data_files():\n    \"\"\"Find the latest data files in the data directory\"\"\"\n    data_dir = \"data\"\n    trends_file = None\n    driver_file = None\n    funnel_file = None\n    # Look for the most recent files\n    for file in os.listdir(data_dir):\n        if file.endswith(\".json\"):\n            file_path = os.path.join(data_dir, file)",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "train_and_save_model",
+        "kind": 2,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "def train_and_save_model():\n    \"\"\"Train the model and save it to disk\"\"\"\n    try:\n        logger.info(\"Starting model training\")\n        # Find the latest data files\n        trends_file, driver_file, funnel_file = find_latest_data_files()\n        if not trends_file or not driver_file:\n            logger.error(\"Missing required data files\")\n            return False\n        logger.info(f\"Using data files: {trends_file}, {driver_file}, {funnel_file}\")",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "scheduled_training",
+        "kind": 2,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "def scheduled_training():\n    \"\"\"Function to be called by the scheduler\"\"\"\n    logger.info(\"Running scheduled model training\")\n    success = train_and_save_model()\n    if success:\n        logger.info(\"Scheduled training completed successfully\")\n    else:\n        logger.error(\"Scheduled training failed\")\ndef main():\n    \"\"\"Main function to run the continuous training process\"\"\"",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "def main():\n    \"\"\"Main function to run the continuous training process\"\"\"\n    logger.info(\"Starting training service\")\n    # Train the model immediately on startup\n    train_and_save_model()\n    # Schedule training every 2 minutes\n    schedule.every(2).minutes.do(scheduled_training)\n    logger.info(\"Training service started, will train model every 2 minutes\")\n    # Run the scheduling loop\n    while True:",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_logger",
+        "kind": 5,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "detailed_logger = logging.getLogger(\"train_detailed\")\ndetailed_logger.setLevel(logging.INFO)\ndetailed_handler = logging.FileHandler(\"logs/train_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\nlogger = logging.getLogger(\"train\")\n# Ensure the models directory exists\nif not os.path.exists(\"models\"):\n    os.makedirs(\"models\")",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_handler",
+        "kind": 5,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "detailed_handler = logging.FileHandler(\"logs/train_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\nlogger = logging.getLogger(\"train\")\n# Ensure the models directory exists\nif not os.path.exists(\"models\"):\n    os.makedirs(\"models\")\n# Global variables\nMODEL_FILE = \"models/demand_model.pkl\"",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_logger.propagate",
+        "kind": 5,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "detailed_logger.propagate = False  # Prevent double logging\nlogger = logging.getLogger(\"train\")\n# Ensure the models directory exists\nif not os.path.exists(\"models\"):\n    os.makedirs(\"models\")\n# Global variables\nMODEL_FILE = \"models/demand_model.pkl\"\nFEATURES_FILE = \"models/model_features.pkl\"\nMODEL_INFO_FILE = \"models/model_info.json\"\ndef find_latest_data_files():",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "logger = logging.getLogger(\"train\")\n# Ensure the models directory exists\nif not os.path.exists(\"models\"):\n    os.makedirs(\"models\")\n# Global variables\nMODEL_FILE = \"models/demand_model.pkl\"\nFEATURES_FILE = \"models/model_features.pkl\"\nMODEL_INFO_FILE = \"models/model_info.json\"\ndef find_latest_data_files():\n    \"\"\"Find the latest data files in the data directory\"\"\"",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "MODEL_FILE",
+        "kind": 5,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "MODEL_FILE = \"models/demand_model.pkl\"\nFEATURES_FILE = \"models/model_features.pkl\"\nMODEL_INFO_FILE = \"models/model_info.json\"\ndef find_latest_data_files():\n    \"\"\"Find the latest data files in the data directory\"\"\"\n    data_dir = \"data\"\n    trends_file = None\n    driver_file = None\n    funnel_file = None\n    # Look for the most recent files",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "FEATURES_FILE",
+        "kind": 5,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "FEATURES_FILE = \"models/model_features.pkl\"\nMODEL_INFO_FILE = \"models/model_info.json\"\ndef find_latest_data_files():\n    \"\"\"Find the latest data files in the data directory\"\"\"\n    data_dir = \"data\"\n    trends_file = None\n    driver_file = None\n    funnel_file = None\n    # Look for the most recent files\n    for file in os.listdir(data_dir):",
+        "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "MODEL_INFO_FILE",
+        "kind": 5,
+        "importPath": "models.train",
+        "description": "models.train",
+        "peekOfCode": "MODEL_INFO_FILE = \"models/model_info.json\"\ndef find_latest_data_files():\n    \"\"\"Find the latest data files in the data directory\"\"\"\n    data_dir = \"data\"\n    trends_file = None\n    driver_file = None\n    funnel_file = None\n    # Look for the most recent files\n    for file in os.listdir(data_dir):\n        if file.endswith(\".json\"):",
+        "detail": "models.train",
+        "documentation": {}
+    }
+]

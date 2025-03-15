@@ -1,0 +1,44 @@
+{
+  "recommendations": [
+    {
+      "active_drivers": 55,
+      "avg_earning_per_ride": 183.5872715839271,
+      "distance": 163,
+      "predicted_earnings": 192.33950162189993,
+      "score": 0.41065088757396445,
+      "ward": 173
+    },
+    {
+      "active_drivers": 57,
+      "avg_earning_per_ride": 166.22802889432018,
+      "distance": 160,
+      "predicted_earnings": 188.76441071761977,
+      "score": 0.402965152628064,
+      "ward": 170
+    },
+    {
+      "active_drivers": 57,
+      "avg_earning_per_ride": 176.86341467278805,
+      "distance": 161,
+      "predicted_earnings": 185.4571280640075,
+      "score": 0.38915348678149947,
+      "ward": 171
+    },
+    {
+      "active_drivers": 52,
+      "avg_earning_per_ride": 168.88912416690687,
+      "distance": 165,
+      "predicted_earnings": 180.79103230298873,
+      "score": 0.36507111542498966,
+      "ward": 175
+    },
+    {
+      "active_drivers": 59,
+      "avg_earning_per_ride": 173.5803257873326,
+      "distance": 169,
+      "predicted_earnings": 180.33134811038616,
+      "score": 0.3562975499719057,
+      "ward": 179
+    }
+  ]
+}

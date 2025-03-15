@@ -55,6 +55,11 @@ except Exception as e:
     logger.error(f"Error loading data or models: {e}")
     logger.error(traceback.format_exc())
 
+# Constants for pricing model
+MINIMUM_PRICE = 30  # ₹30 minimum starting fare
+PER_KM_VALUE = 15  # ₹15 per kilometer
+PER_MIN_CHARGE = 1.5  # ₹1.5 per minute in traffic
+
 
 # Cache decorator with timeout
 def timed_cache(timeout_seconds=300):
@@ -872,6 +877,413 @@ def get_demand_forecast_ratio():
 
     except Exception as e:
         logger.error(f"Error calculating demand-driver ratio: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/surge_multiplier", methods=["GET"])
+def get_surge_multiplier():
+    """
+    Calculate surge multiplier based on demand-supply ratio.
+    Uses the formula: M = 1 + α * ((demand/supply) - 1)
+    """
+    try:
+        # Get query parameters
+        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
+        region = request.args.get("region")
+        alpha = float(request.args.get("alpha", "0.5"))  # Surge sensitivity parameter
+        force_refresh = request.args.get("refresh", "false").lower() == "true"
+
+        # Create cache key
+        cache_key = f"surge_multiplier_{data_type}_{region}_{alpha}"
+
+        # Check file cache if not forcing refresh
+        if not force_refresh:
+            file_cache_data = load_from_file_cache(cache_key)
+            if file_cache_data:
+                return jsonify(file_cache_data)
+
+        # Get the demand-supply ratio data
+        # We'll reuse the existing endpoint's logic but without creating a new HTTP request
+
+        # Load the active driver data from the JSON file
+        driver_data = {}
+        try:
+            file_path = os.path.join("data", f"driver_eda_{data_type}s_new_key.json")
+            if os.path.exists(file_path):
+                with open(file_path, "r") as f:
+                    driver_info = json.load(f)
+
+                # Convert to dictionary with ward_num/ac_num as keys
+                region_col = "ward_num" if data_type == "ward" else "ac_num"
+
+                # Aggregate driver data by region
+                for item in driver_info:
+                    if region_col in item and "active_drvr" in item:
+                        region_id = str(item[region_col])
+
+                        if region_id not in driver_data:
+                            driver_data[region_id] = {
+                                "active_drvr": 0,
+                                "drvr_notonride": 0,
+                                "drvr_onride": 0,
+                                "region": region_id,
+                            }
+
+                        # Sum up driver counts
+                        driver_data[region_id]["active_drvr"] += int(
+                            item.get("active_drvr", 0)
+                        )
+                        driver_data[region_id]["drvr_notonride"] += int(
+                            item.get("drvr_notonride", 0)
+                        )
+                        driver_data[region_id]["drvr_onride"] += int(
+                            item.get("drvr_onride", 0)
+                        )
+            else:
+                logger.warning(f"Driver data file not found: {file_path}")
+                return (
+                    jsonify({"error": f"Driver data file not found: {file_path}"}),
+                    404,
+                )
+        except Exception as e:
+            logger.error(f"Error loading driver data: {e}")
+            logger.error(traceback.format_exc())
+            return jsonify({"error": f"Error loading driver data: {str(e)}"}), 500
+
+        if not driver_data:
+            return jsonify({"error": "No driver data available"}), 404
+
+        # Generate forecast for the region
+        hours = 24  # Default to 24 hours forecast
+        forecast_df = forecaster.forecast_next_hours(hours, data_type, region)
+
+        if forecast_df is None or forecast_df.empty:
+            return jsonify({"error": "Failed to generate forecast"}), 500
+
+        # Calculate surge multipliers hour by hour
+        region_col = "ward_num" if data_type == "ward" else "ac_num"
+
+        # Helper function to calculate surge multiplier
+        def calculate_surge_multiplier(demand, supply, alpha=0.5):
+            """
+            Calculate surge multiplier based on demand/supply ratio
+            M = 1 + α * ((demand/supply) - 1)
+            """
+            if supply <= 0:
+                return 1.0  # Default to no surge if no supply data
+
+            multiplier = 1 + alpha * ((demand / supply) - 1)
+            # Cap the multiplier between 1.0 and 2.5
+            multiplier = max(1.0, min(2.5, multiplier))
+            return round(multiplier, 2)
+
+        # Prepare the result structure
+        hourly_surge = {}
+
+        # Process each hour of the forecast
+        for _, row in forecast_df.iterrows():
+            region_id = str(row[region_col])
+            hour = row["datetime"]
+            forecast_requests = row["forecast_requests"]
+
+            if region_id in driver_data:
+                active_drivers = driver_data[region_id]["active_drvr"]
+                available_drivers = driver_data[region_id]["drvr_notonride"]
+
+                # Calculate surge multipliers
+                active_surge = calculate_surge_multiplier(
+                    forecast_requests, active_drivers, alpha
+                )
+                available_surge = calculate_surge_multiplier(
+                    forecast_requests, available_drivers, alpha
+                )
+
+                # Use the higher of the two surge values for a more conservative approach
+                surge_multiplier = max(active_surge, available_surge)
+
+                # Initialize region in hourly_surge if not exists
+                if region_id not in hourly_surge:
+                    hourly_surge[region_id] = []
+
+                # Add hourly data
+                hourly_surge[region_id].append(
+                    {
+                        "datetime": hour.isoformat(),
+                        "forecast_requests": int(forecast_requests),
+                        "active_drivers": active_drivers,
+                        "available_drivers": available_drivers,
+                        "surge_multiplier": surge_multiplier,
+                        "demand_supply_ratio": round(
+                            forecast_requests / max(1, active_drivers), 2
+                        ),
+                    }
+                )
+
+        # Calculate overall statistics
+        all_hours_data = []
+        for region_data in hourly_surge.values():
+            all_hours_data.extend(region_data)
+
+        avg_surge = (
+            sum(item["surge_multiplier"] for item in all_hours_data)
+            / len(all_hours_data)
+            if all_hours_data
+            else 1.0
+        )
+        max_surge = max(
+            (item["surge_multiplier"] for item in all_hours_data), default=1.0
+        )
+        min_surge = min(
+            (item["surge_multiplier"] for item in all_hours_data), default=1.0
+        )
+
+        # Find peak surge hours
+        peak_hours = []
+        if all_hours_data:
+            # Group by hour
+            hour_groups = {}
+            for item in all_hours_data:
+                hour = datetime.fromisoformat(item["datetime"]).hour
+                if hour not in hour_groups:
+                    hour_groups[hour] = []
+                hour_groups[hour].append(item)
+
+            # Calculate average surge for each hour
+            hour_surge = {}
+            for hour, items in hour_groups.items():
+                hour_surge[hour] = sum(
+                    item["surge_multiplier"] for item in items
+                ) / len(items)
+
+            # Get top 3 peak surge hours
+            peak_hours = sorted(hour_surge.items(), key=lambda x: x[1], reverse=True)[
+                :3
+            ]
+            peak_hours = [
+                {"hour": hour, "avg_surge": round(surge, 2)}
+                for hour, surge in peak_hours
+            ]
+
+        response_data = {
+            "hourly_surge": hourly_surge,
+            "summary": {
+                "avg_surge_multiplier": round(avg_surge, 2),
+                "max_surge_multiplier": round(max_surge, 2),
+                "min_surge_multiplier": round(min_surge, 2),
+                "peak_surge_hours": peak_hours,
+                "alpha": alpha,
+            },
+            "metadata": {
+                "data_type": data_type,
+                "region": region,
+                "generated_at": datetime.now().isoformat(),
+                "driver_data_source": file_path,
+            },
+        }
+
+        # Save to file cache
+        save_to_file_cache(cache_key, response_data)
+
+        return jsonify(response_data)
+
+    except Exception as e:
+        logger.error(f"Error calculating surge multiplier: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/surge_pricing", methods=["GET"])
+def get_surge_pricing():
+    """
+    Calculate the final price with surge for a given trip.
+    """
+    try:
+        # Get query parameters
+        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
+        region = request.args.get("region")
+        distance = float(request.args.get("distance", "5.0"))  # Trip distance in km
+        duration = float(
+            request.args.get("duration", "20.0")
+        )  # Trip duration in minutes
+        alpha = float(request.args.get("alpha", "0.5"))  # Surge sensitivity parameter
+        current_time = request.args.get("time")  # Optional specific time for pricing
+
+        # If no specific time provided, use current time
+        if not current_time:
+            current_time = datetime.now().isoformat()
+
+        # Create cache key
+        cache_key = f"surge_pricing_{data_type}_{region}_{distance}_{duration}_{alpha}_{current_time}"
+
+        # Check file cache
+        file_cache_data = load_from_file_cache(cache_key)
+        if file_cache_data:
+            return jsonify(file_cache_data)
+
+        # Calculate base fare
+        base_fare = MINIMUM_PRICE + (PER_KM_VALUE * distance)
+        time_fare = duration * PER_MIN_CHARGE
+        subtotal = base_fare + time_fare
+
+        # Get surge multiplier for the current time and region
+        # First, get the hourly surge data
+        hours = 24  # Default to 24 hours forecast
+        forecast_df = forecaster.forecast_next_hours(hours, data_type, region)
+
+        if forecast_df is None or forecast_df.empty:
+            return jsonify({"error": "Failed to generate forecast"}), 500
+
+        # Load driver data
+        driver_data = {}
+        try:
+            file_path = os.path.join("data", f"driver_eda_{data_type}s_new_key.json")
+            if os.path.exists(file_path):
+                with open(file_path, "r") as f:
+                    driver_info = json.load(f)
+
+                # Convert to dictionary with ward_num/ac_num as keys
+                region_col = "ward_num" if data_type == "ward" else "ac_num"
+
+                # Aggregate driver data by region
+                for item in driver_info:
+                    if region_col in item and "active_drvr" in item:
+                        region_id = str(item[region_col])
+
+                        if region_id not in driver_data:
+                            driver_data[region_id] = {
+                                "active_drvr": 0,
+                                "drvr_notonride": 0,
+                                "drvr_onride": 0,
+                                "region": region_id,
+                            }
+
+                        # Sum up driver counts
+                        driver_data[region_id]["active_drvr"] += int(
+                            item.get("active_drvr", 0)
+                        )
+                        driver_data[region_id]["drvr_notonride"] += int(
+                            item.get("drvr_notonride", 0)
+                        )
+                        driver_data[region_id]["drvr_onride"] += int(
+                            item.get("drvr_onride", 0)
+                        )
+            else:
+                logger.warning(f"Driver data file not found: {file_path}")
+                return (
+                    jsonify({"error": f"Driver data file not found: {file_path}"}),
+                    404,
+                )
+        except Exception as e:
+            logger.error(f"Error loading driver data: {e}")
+            logger.error(traceback.format_exc())
+            return jsonify({"error": f"Error loading driver data: {str(e)}"}), 500
+
+        if not driver_data:
+            return jsonify({"error": "No driver data available"}), 404
+
+        # Helper function to calculate surge multiplier
+        def calculate_surge_multiplier(demand, supply, alpha=0.5):
+            """
+            Calculate surge multiplier based on demand/supply ratio
+            M = 1 + α * ((demand/supply) - 1)
+            """
+            if supply <= 0:
+                return 1.0  # Default to no surge if no supply data
+
+            multiplier = 1 + alpha * ((demand / supply) - 1)
+            # Cap the multiplier between 1.0 and 2.5
+            multiplier = max(1.0, min(2.5, multiplier))
+            return round(multiplier, 2)
+
+        # Find the closest time in the forecast to the requested time
+        target_time = datetime.fromisoformat(current_time)
+        region_col = "ward_num" if data_type == "ward" else "ac_num"
+
+        closest_row = None
+        min_time_diff = float("inf")
+
+        for _, row in forecast_df.iterrows():
+            time_diff = abs((row["datetime"] - target_time).total_seconds())
+            if time_diff < min_time_diff:
+                min_time_diff = time_diff
+                closest_row = row
+
+        if closest_row is None:
+            return (
+                jsonify(
+                    {"error": "Could not find forecast data for the specified time"}
+                ),
+                404,
+            )
+
+        region_id = str(closest_row[region_col])
+        forecast_requests = closest_row["forecast_requests"]
+
+        # Get driver data for this region
+        if region_id not in driver_data:
+            return (
+                jsonify({"error": f"No driver data available for region {region_id}"}),
+                404,
+            )
+
+        active_drivers = driver_data[region_id]["active_drvr"]
+        available_drivers = driver_data[region_id]["drvr_notonride"]
+
+        # Calculate surge multiplier
+        active_surge = calculate_surge_multiplier(
+            forecast_requests, active_drivers, alpha
+        )
+        available_surge = calculate_surge_multiplier(
+            forecast_requests, available_drivers, alpha
+        )
+        surge_multiplier = max(active_surge, available_surge)
+
+        # Calculate final price with surge
+        total_price = subtotal * surge_multiplier
+
+        # Prepare response
+        response_data = {
+            "pricing": {
+                "base_fare": round(base_fare, 2),
+                "time_fare": round(time_fare, 2),
+                "subtotal": round(subtotal, 2),
+                "surge_multiplier": surge_multiplier,
+                "total_price": round(total_price, 2),
+            },
+            "trip_details": {
+                "distance_km": distance,
+                "duration_min": duration,
+                "region": region_id,
+                "pricing_time": closest_row["datetime"].isoformat(),
+            },
+            "demand_supply": {
+                "forecast_requests": int(forecast_requests),
+                "active_drivers": active_drivers,
+                "available_drivers": available_drivers,
+                "demand_supply_ratio": round(
+                    forecast_requests / max(1, active_drivers), 2
+                ),
+            },
+            "pricing_constants": {
+                "minimum_price": MINIMUM_PRICE,
+                "per_km_value": PER_KM_VALUE,
+                "per_min_charge": PER_MIN_CHARGE,
+                "alpha": alpha,
+            },
+            "metadata": {
+                "data_type": data_type,
+                "generated_at": datetime.now().isoformat(),
+            },
+        }
+
+        # Save to file cache
+        save_to_file_cache(cache_key, response_data)
+
+        return jsonify(response_data)
+
+    except Exception as e:
+        logger.error(f"Error calculating surge pricing: {e}")
         logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 

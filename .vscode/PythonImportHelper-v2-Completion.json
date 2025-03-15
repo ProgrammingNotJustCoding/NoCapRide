@@ -1192,6 +1192,24 @@
         "documentation": {}
     },
     {
+        "label": "get_surge_multiplier",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def get_surge_multiplier():\n    \"\"\"\n    Calculate surge multiplier based on demand-supply ratio.\n    Uses the formula: M = 1 + α * ((demand/supply) - 1)\n    \"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        region = request.args.get(\"region\")\n        alpha = float(request.args.get(\"alpha\", \"0.5\"))  # Surge sensitivity parameter",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "get_surge_pricing",
+        "kind": 2,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "def get_surge_pricing():\n    \"\"\"\n    Calculate the final price with surge for a given trip.\n    \"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        region = request.args.get(\"region\")\n        distance = float(request.args.get(\"distance\", \"5.0\"))  # Trip distance in km\n        duration = float(",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
         "label": "logger",
         "kind": 5,
         "importPath": "api",
@@ -1251,6 +1269,33 @@
         "importPath": "api",
         "description": "api",
         "peekOfCode": "CACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:\n    logger.error(f\"Error loading data or models: {e}\")\n    logger.error(traceback.format_exc())",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "MINIMUM_PRICE",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "MINIMUM_PRICE = 30  # ₹30 minimum starting fare\nPER_KM_VALUE = 15  # ₹15 per kilometer\nPER_MIN_CHARGE = 1.5  # ₹1.5 per minute in traffic\n# Cache decorator with timeout\ndef timed_cache(timeout_seconds=300):\n    def decorator(func):\n        cache = {}\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            key = str(args) + str(kwargs)",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "PER_KM_VALUE",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "PER_KM_VALUE = 15  # ₹15 per kilometer\nPER_MIN_CHARGE = 1.5  # ₹1.5 per minute in traffic\n# Cache decorator with timeout\ndef timed_cache(timeout_seconds=300):\n    def decorator(func):\n        cache = {}\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            key = str(args) + str(kwargs)\n            current_time = datetime.now()",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "PER_MIN_CHARGE",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "PER_MIN_CHARGE = 1.5  # ₹1.5 per minute in traffic\n# Cache decorator with timeout\ndef timed_cache(timeout_seconds=300):\n    def decorator(func):\n        cache = {}\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            key = str(args) + str(kwargs)\n            current_time = datetime.now()\n            with cache_lock:",
         "detail": "api",
         "documentation": {}
     },

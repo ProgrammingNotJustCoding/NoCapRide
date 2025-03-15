@@ -1,0 +1,20 @@
+{
+  "data": {
+    "hourly_surge": {},
+    "summary": {
+      "avg_surge_multiplier": 1.0,
+      "max_surge_multiplier": 1.0,
+      "min_surge_multiplier": 1.0,
+      "peak_surge_hours": [],
+      "alpha": 0.5
+    },
+    "metadata": {
+      "data_type": "ward",
+      "region": "1",
+      "generated_at": "2025-03-16T03:25:14.861009",
+      "driver_data_source": "data/driver_eda_wards_new_key.json"
+    }
+  },
+  "cached_at": "2025-03-16T03:25:14.861021",
+  "key": "surge_multiplier_ward_1_0.5"
+}

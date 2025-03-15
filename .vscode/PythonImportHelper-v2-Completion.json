@@ -103,6 +103,22 @@
         "documentation": {}
     },
     {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "sync_playwright",
         "importPath": "playwright.sync_api",
         "description": "playwright.sync_api",
@@ -147,6 +163,14 @@
     },
     {
         "label": "GradientBoostingRegressor",
+        "importPath": "sklearn.ensemble",
+        "description": "sklearn.ensemble",
+        "isExtraImport": true,
+        "detail": "sklearn.ensemble",
+        "documentation": {}
+    },
+    {
+        "label": "RandomForestRegressor",
         "importPath": "sklearn.ensemble",
         "description": "sklearn.ensemble",
         "isExtraImport": true,
@@ -369,6 +393,23 @@
         "documentation": {}
     },
     {
+        "label": "matplotlib.pyplot",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "matplotlib.pyplot",
+        "description": "matplotlib.pyplot",
+        "detail": "matplotlib.pyplot",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
         "label": "capture_endpoints",
         "kind": 2,
         "importPath": "models.fetch",
@@ -436,7 +477,34 @@
         "kind": 5,
         "importPath": "models.fetch",
         "description": "models.fetch",
-        "peekOfCode": "logger = logging.getLogger(\"fetch\")\n# Ensure the /data directory exists\nif not os.path.exists(\"data\"):\n    os.makedirs(\"data\")\n# Store discovered endpoints\nENDPOINTS_FILE = \"data/endpoints.json\"\ndiscovered_endpoints = []\ndef capture_endpoints(url):\n    \"\"\"Capture all API endpoints from the webpage\"\"\"\n    logger.info(f\"Capturing endpoints from {url}\")",
+        "peekOfCode": "logger = logging.getLogger(\"fetch\")\n# Create a separate handler for detailed output\ndetailed_logger = logging.getLogger(\"fetch_detailed\")\ndetailed_logger.setLevel(logging.INFO)\ndetailed_handler = logging.FileHandler(\"logs/fetch_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\n# Ensure the /data directory exists\nif not os.path.exists(\"data\"):",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_logger",
+        "kind": 5,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "detailed_logger = logging.getLogger(\"fetch_detailed\")\ndetailed_logger.setLevel(logging.INFO)\ndetailed_handler = logging.FileHandler(\"logs/fetch_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\n# Ensure the /data directory exists\nif not os.path.exists(\"data\"):\n    os.makedirs(\"data\")\n# Store discovered endpoints",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_handler",
+        "kind": 5,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "detailed_handler = logging.FileHandler(\"logs/fetch_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\n# Ensure the /data directory exists\nif not os.path.exists(\"data\"):\n    os.makedirs(\"data\")\n# Store discovered endpoints\nENDPOINTS_FILE = \"data/endpoints.json\"\ndiscovered_endpoints = []",
+        "detail": "models.fetch",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_logger.propagate",
+        "kind": 5,
+        "importPath": "models.fetch",
+        "description": "models.fetch",
+        "peekOfCode": "detailed_logger.propagate = False  # Prevent double logging\n# Ensure the /data directory exists\nif not os.path.exists(\"data\"):\n    os.makedirs(\"data\")\n# Store discovered endpoints\nENDPOINTS_FILE = \"data/endpoints.json\"\ndiscovered_endpoints = []\ndef capture_endpoints(url):\n    \"\"\"Capture all API endpoints from the webpage\"\"\"\n    logger.info(f\"Capturing endpoints from {url}\")",
         "detail": "models.fetch",
         "documentation": {}
     },
@@ -933,6 +1001,96 @@
         "description": "models.train",
         "peekOfCode": "MODEL_INFO_FILE = \"models/model_info.json\"\ndef find_latest_data_files():\n    \"\"\"Find the latest data files in the data directory\"\"\"\n    data_dir = \"data\"\n    trends_file = None\n    driver_file = None\n    funnel_file = None\n    # Look for the most recent files\n    for file in os.listdir(data_dir):\n        if file.endswith(\".json\"):",
         "detail": "models.train",
+        "documentation": {}
+    },
+    {
+        "label": "RideDataManager",
+        "kind": 6,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "class RideDataManager:\n    \"\"\"Class to manage ride data fetching, storage, and retrieval\"\"\"\n    def __init__(self):\n        self.last_fetch_time = None\n        self.historical_data = {}\n    def fetch_endpoint(self, endpoint):\n        \"\"\"Fetch data from a specific endpoint\"\"\"\n        url = f\"{BASE_URL}/{endpoint}\"\n        try:\n            logger.info(f\"Fetching data from {url}\")",
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "RideRequestForecast",
+        "kind": 6,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "class RideRequestForecast:\n    \"\"\"Class to forecast ride requests based on historical data\"\"\"\n    def __init__(self, data_manager):\n        self.data_manager = data_manager\n        self.model = None\n        self.features = []\n        self.last_training_time = None\n        self.forecast_history = []\n    def prepare_data_for_modeling(self, data_type=\"ward\"):\n        \"\"\"Prepare data for modeling\"\"\"",
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "ForecastService",
+        "kind": 6,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "class ForecastService:\n    \"\"\"Main service to run the forecasting process\"\"\"\n    def __init__(self):\n        self.data_manager = RideDataManager()\n        self.forecaster = RideRequestForecast(self.data_manager)\n        self.last_fetch_time = None\n        self.last_forecast_time = None\n    def initialize(self):\n        \"\"\"Initialize the service\"\"\"\n        try:",
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "def main():\n    \"\"\"Main function to run the forecast service\"\"\"\n    try:\n        # Create and run the service\n        service = ForecastService()\n        # Initialize and run the service\n        service.initialize()\n        service.generate_forecast()\n        service.run()\n        return 0",
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "logger = logging.getLogger(\"forecast\")\n# Create a separate logger for detailed output\ndetailed_logger = logging.getLogger(\"forecast_detailed\")\ndetailed_logger.setLevel(logging.INFO)\ndetailed_handler = logging.FileHandler(\"logs/forecast_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\n# Ensure necessary directories exist\nos.makedirs(\"logs\", exist_ok=True)",
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_logger",
+        "kind": 5,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "detailed_logger = logging.getLogger(\"forecast_detailed\")\ndetailed_logger.setLevel(logging.INFO)\ndetailed_handler = logging.FileHandler(\"logs/forecast_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\n# Ensure necessary directories exist\nos.makedirs(\"logs\", exist_ok=True)\nos.makedirs(\"data\", exist_ok=True)\nos.makedirs(\"data/historical\", exist_ok=True)",
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_handler",
+        "kind": 5,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "detailed_handler = logging.FileHandler(\"logs/forecast_output.log\", mode=\"a\")\ndetailed_handler.setFormatter(logging.Formatter(\"%(asctime)s - %(message)s\"))\ndetailed_logger.addHandler(detailed_handler)\ndetailed_logger.propagate = False  # Prevent double logging\n# Ensure necessary directories exist\nos.makedirs(\"logs\", exist_ok=True)\nos.makedirs(\"data\", exist_ok=True)\nos.makedirs(\"data/historical\", exist_ok=True)\nos.makedirs(\"data/models\", exist_ok=True)\nos.makedirs(\"data/forecasts\", exist_ok=True)",
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "detailed_logger.propagate",
+        "kind": 5,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "detailed_logger.propagate = False  # Prevent double logging\n# Ensure necessary directories exist\nos.makedirs(\"logs\", exist_ok=True)\nos.makedirs(\"data\", exist_ok=True)\nos.makedirs(\"data/historical\", exist_ok=True)\nos.makedirs(\"data/models\", exist_ok=True)\nos.makedirs(\"data/forecasts\", exist_ok=True)\nos.makedirs(\"data/visualizations\", exist_ok=True)\n# Base URL for the CDN\nBASE_URL = \"https://d11gklsvr97l1g.cloudfront.net/open/json-data\"",
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "BASE_URL",
+        "kind": 5,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "BASE_URL = \"https://d11gklsvr97l1g.cloudfront.net/open/json-data\"\n# List of endpoints to fetch\nENDPOINTS = [\n    \"trends_live_ward_new_key.json\",\n    \"trends_live_ca_new_key.json\",\n    \"driver_eda_wards_new_key.json\",\n    \"driver_eda_ca_new_key.json\",\n    \"funnel_live_ward_new_key.json\",\n    \"funnel_live_ca_new_key.json\",\n    \"funnel_cumulative_ward_new_key.json\",",
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "ENDPOINTS",
+        "kind": 5,
+        "importPath": "panda",
+        "description": "panda",
+        "peekOfCode": "ENDPOINTS = [\n    \"trends_live_ward_new_key.json\",\n    \"trends_live_ca_new_key.json\",\n    \"driver_eda_wards_new_key.json\",\n    \"driver_eda_ca_new_key.json\",\n    \"funnel_live_ward_new_key.json\",\n    \"funnel_live_ca_new_key.json\",\n    \"funnel_cumulative_ward_new_key.json\",\n    \"funnel_cumulative_ca_new_key.json\",\n    \"cumulative_stats_new_key.json\",",
+        "detail": "panda",
         "documentation": {}
     }
 ]

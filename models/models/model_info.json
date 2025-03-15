@@ -1,0 +1,25 @@
+{
+  "trained_at": "2025-03-15T14:58:31.684833",
+  "trends_file": "data/trends_live_ward_new_key.json",
+  "driver_file": "data/driver_eda_wards_new_key.json",
+  "funnel_file": "data/funnel_live_ward_new_key.json",
+  "num_features": 45,
+  "num_samples": 720,
+  "wards": [
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    176,
+    177,
+    178,
+    179
+  ],
+  "vehicle_types": [
+    "Auto",
+    "Cab",
+    "Bike"
+  ]
+}

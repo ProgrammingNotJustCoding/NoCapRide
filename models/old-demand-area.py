@@ -728,17 +728,12 @@ def main(
         print("\n--- High Demand Area Recommendations ---")
         for i, rec in enumerate(recommendations, 1):
             print(f"{i}. Ward {rec['ward']}:")
-            print(f"   - Predicted Demand Score: {rec['predicted_demand']:.2f}")
             print(f"   - Search Requests: {rec['search_requests']:.0f}")
             print(f"   - Distance from current location: {rec['distance']}")
             print(f"   - Current active drivers: {rec['current_drivers']:.0f}")
-            print(f"   - Conversion Rate: {rec['conversion_rate']:.2%}")
-            print(f"   - Completion Rate: {rec['completion_rate']:.2%}")
             print(f"   - Cancellation Rate: {rec['cancellation_rate']:.2%}")
             print(f"   - Avg Earning per Ride: ₹{rec['avg_earning_per_ride']:.2f}")
             print(f"   - Rider Satisfaction: {rec['rider_satisfaction']:.2f}")
-            print(f"   - Queue Effectiveness: {rec['queue_effectiveness']:.2f}")
-            print(f"   - Overall score: {rec['score']:.2f}")
 
         return recommendations, model, features
 
@@ -751,9 +746,9 @@ def main(
 
 
 if __name__ == "__main__":
-    trends_file = "../data/chennai/funnel_live_ward_new_key.json"
-    driver_file = "../data/chennai/driver_eda_wards_new_key.json"
-    funnel_file = "../data/chennai//funnel_live_ward_new_key.json"
+    trends_file = "./data/chennai/trends_live_ward_new_key.json"
+    driver_file = "./data/chennai/driver_eda_wards_new_key.json"
+    funnel_file = "./data/chennai/funnel_live_ward_new_key.json"
 
     user_time = "2025-03-13 10:00:00"
     user_location = "174"

@@ -1,22 +1,22 @@
 {
-  "trained_at": "2025-03-15T16:28:24.221291",
+  "trained_at": "2025-03-15T18:52:10.704952",
   "trends_file": "data/trends_live_ward_new_key.json",
   "driver_file": "data/driver_eda_wards_new_key.json",
   "funnel_file": "data/funnel_live_ward_new_key.json",
-  "best_model": "random_forest",
+  "best_model": "gradient_boosting",
   "random_forest": {
-    "val_rmse": 3.3613447516073654e-13,
-    "val_r2": 1.0,
-    "test_rmse": 3.5288169704351344e-13,
-    "test_r2": 1.0
+    "val_rmse": 0.019371935479867212,
+    "val_r2": 0.9999998447021714,
+    "test_rmse": 0.01780777764735593,
+    "test_r2": 0.9999998654580445
   },
   "gradient_boosting": {
-    "val_rmse": 0.0024042286709813152,
-    "val_r2": 0.9999999976663537,
-    "test_rmse": 0.004302368724556368,
-    "test_r2": 0.9999999930755696
+    "val_rmse": 0.0017348374910368144,
+    "val_r2": 0.9999999987545194,
+    "test_rmse": 0.0017134863386093512,
+    "test_r2": 0.9999999987543399
   },
-  "num_features": 37,
+  "num_features": 41,
   "num_samples": 720,
   "wards": [
     170,

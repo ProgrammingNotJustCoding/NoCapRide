@@ -1,0 +1,13 @@
+{
+  "data": {
+    "current_ward": "123",
+    "recommendations": [],
+    "metadata": {
+      "max_distance": 5,
+      "hours_ahead": 3,
+      "generated_at": "2025-03-16T07:14:22.148734"
+    }
+  },
+  "cached_at": "2025-03-16T07:14:22.148746",
+  "key": "nearby_high_demand_123_5_3"
+}

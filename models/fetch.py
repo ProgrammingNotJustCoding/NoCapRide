@@ -125,7 +125,7 @@ def initialize_endpoints():
             logger.info(f"Loaded {len(discovered_endpoints)} endpoints from file")
         else:
             # Discover new endpoints
-            url = "https://www.nammayatri.in/open?cc=MAA&riders=All&rides=All&vehicles=All&tl=ty"
+            url = "https://www.nammayatri.in/open?cc=BLR&riders=All&rides=All&vehicles=All&tl=ty"
             discovered_endpoints = capture_endpoints(url)
 
             # If no endpoints were discovered, use some default endpoints
@@ -194,13 +194,27 @@ def create_sample_data():
     try:
         logger.info("Creating sample data files")
 
+        # Get unique ward numbers from existing data files
+        ward_nums = set()
+        try:
+            with open("data/driver_eda_wards_new_key.json", "r") as f:
+                driver_data = json.load(f)
+                for entry in driver_data:
+                    if entry["ward_num"].isdigit():  # Only use numeric ward numbers
+                        ward_nums.add(entry["ward_num"])
+        except:
+            # If file doesn't exist or can't be read, use some default ward numbers
+            ward_nums = set(str(i) for i in range(1, 21))  # Default to first 20 wards
+
+        ward_nums = sorted(list(ward_nums))  # Convert to sorted list
+
         # Sample trends data
         trends_data = []
-        for ward_num in range(170, 180):
+        for ward_num in ward_nums:
             for hour in range(24):
                 trends_data.append(
                     {
-                        "ward_num": str(ward_num),
+                        "ward_num": ward_num,
                         "date": "2025-03-15",
                         "hour": hour,
                         "srch_rqst": int(100 * (1 + 0.5 * np.sin(hour / 12 * np.pi))),
@@ -216,11 +230,11 @@ def create_sample_data():
         # Sample driver data
         driver_data = []
         vehicle_types = ["Auto", "Cab", "Bike"]
-        for ward_num in range(170, 180):
+        for ward_num in ward_nums:
             for vehicle_type in vehicle_types:
                 driver_data.append(
                     {
-                        "ward_num": str(ward_num),
+                        "ward_num": ward_num,
                         "vehicle_type": vehicle_type,
                         "active_drvr": int(50 * (1 + 0.3 * np.random.random())),
                         "drvr_onride": int(20 * (1 + 0.3 * np.random.random())),
@@ -238,7 +252,7 @@ def create_sample_data():
 
         # Sample funnel data
         funnel_data = []
-        for ward_num in range(170, 180):
+        for ward_num in ward_nums:
             for vehicle_type in vehicle_types:
                 # Generate reasonable values for funnel metrics
                 srch_rqst = int(100 * (1 + 0.5 * np.random.random()))
@@ -261,7 +275,7 @@ def create_sample_data():
 
                 funnel_data.append(
                     {
-                        "ward_num": str(ward_num),
+                        "ward_num": ward_num,
                         "vehicle_type": vehicle_type,
                         "srch_rqst": srch_rqst,
                         "booking": booking,

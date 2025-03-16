@@ -14,9 +14,11 @@ from werkzeug.serving import run_simple
 import re
 import concurrent.futures
 import time
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
+from pydantic import BaseModel
+from typing import Optional
 
 # Import from the existing forecasting module
 from panda import RideDataManager, RideRequestForecast
@@ -57,10 +59,23 @@ cache_lock = threading.Lock()
 CACHE_DIR = "cache/forecasts"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-# Load historical data and models
+# Load historical data and models, and fetch current data
 try:
+    logger.info("Loading historical data and models...")
     data_manager.load_historical_data()
-    forecaster.load_model("ward")
+
+    logger.info("Fetching current data from endpoints...")
+    fetched_data = data_manager.fetch_all_endpoints()
+    if fetched_data:
+        logger.info("Successfully fetched current data")
+    else:
+        logger.warning(
+            "Failed to fetch current data, will use cached data if available"
+        )
+
+    if not forecaster.load_model("ward"):
+        logger.info("No pre-trained model found, training a new one...")
+        forecaster.train_model("ward")
     logger.info("Historical data and models loaded successfully")
 except Exception as e:
     logger.error(f"Error loading data or models: {e}")
@@ -152,22 +167,18 @@ def save_to_file_cache(cache_key, data):
         return False
 
 
-@app.route("/api/health", methods=["GET"])
-def health_check():
+@app.get("/api/health")
+async def health_check():
     """Health check endpoint"""
-    return jsonify({"status": "ok", "timestamp": datetime.now().isoformat()})
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
 
 
-@app.route("/api/forecast", methods=["GET"])
-def get_forecast():
+@app.get("/api/forecast")
+async def get_forecast(
+    data_type: str = "ward", hours: int = 24, region: str = None, refresh: bool = False
+):
     """Get forecast for the specified parameters"""
     try:
-        # Get query parameters
-        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
-        hours = int(request.args.get("hours", "24"))
-        region = request.args.get("region")
-        force_refresh = request.args.get("refresh", "false").lower() == "true"
-
         # No longer convert region to integer - keep it as a string
         # This allows for region identifiers like "b_1" or "w_0"
         if region is not None:
@@ -181,20 +192,15 @@ def get_forecast():
                     logger.warning(
                         f"Region {region} not found in data. Valid regions: {valid_regions[:5]}..."
                     )
-                    return (
-                        jsonify(
-                            {
-                                "error": f"Region {region} not found. Valid regions include: {valid_regions[:5]}..."
-                            }
-                        ),
-                        400,
-                    )
+                    return {
+                        "error": f"Region {region} not found. Valid regions include: {valid_regions[:5]}..."
+                    }, 400
 
         # Create cache key
         cache_key = f"forecast_{data_type}_{hours}_{region}"
 
         # Check memory cache first if not forcing refresh
-        if not force_refresh:
+        if not refresh:
             with cache_lock:
                 if cache_key in forecast_cache:
                     cache_entry = forecast_cache[cache_key]
@@ -202,7 +208,7 @@ def get_forecast():
                     # Use cache if it's less than 30 minutes old
                     if (datetime.now() - cache_time).total_seconds() < 1800:
                         logger.info(f"Using memory cache for {cache_key}")
-                        return jsonify(cache_entry["data"])
+                        return cache_entry["data"]
 
             # Check file cache for this specific region
             file_cache_data = load_from_file_cache(cache_key)
@@ -214,7 +220,7 @@ def get_forecast():
                         "timestamp": datetime.now(),
                     }
                 logger.info(f"Using file cache for specific region: {cache_key}")
-                return jsonify(file_cache_data)
+                return file_cache_data
 
             # Also check if this data might be available from the "forecast/all" endpoint's cache
             # Look for cached data from forecast/all that includes this region
@@ -262,7 +268,7 @@ def get_forecast():
                             "timestamp": datetime.now(),
                         }
 
-                    return jsonify(response_data)
+                    return response_data
 
         # Set a reasonable limit on forecast hours
         if hours > 72:
@@ -292,7 +298,7 @@ def get_forecast():
                 forecaster.model.n_estimators = original_n_estimators
 
         if forecast_df is None or forecast_df.empty:
-            return jsonify({"error": "Failed to generate forecast"}), 500
+            return {"error": "Failed to generate forecast"}, 500
 
         # Convert DataFrame to JSON
         region_col = "ward_num" if data_type == "ward" else "ac_num"
@@ -338,32 +344,30 @@ def get_forecast():
             for key in keys_to_remove:
                 del forecast_cache[key]
 
-        return jsonify(response_data)
+        return response_data
 
     except Exception as e:
         logger.error(f"Error generating forecast: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
+        return {"error": str(e)}, 500
 
 
-@app.route("/api/regions", methods=["GET"])
-def get_regions():
+@app.get("/api/regions")
+async def get_regions(
+    data_type: str = "ward", filter_type: str = "all", refresh: bool = False
+):
     """
     Get available regions for a given type.
     """
     try:
-        data_type = request.args.get("type", "ward")
-        filter_type = request.args.get("filter", "all")  # 'all', 'simple', 'b', 'w'
-        force_refresh = request.args.get("refresh", "false").lower() == "true"
-
         # Create cache key
         cache_key = f"regions_{data_type}_{filter_type}"
 
         # Check file cache if not forcing refresh
-        if not force_refresh:
+        if not refresh:
             file_cache_data = load_from_file_cache(cache_key)
             if file_cache_data:
-                return jsonify(file_cache_data)
+                return file_cache_data
 
         # Get the regions from the historical data
         regions = []
@@ -409,30 +413,23 @@ def get_regions():
         # Save to file cache
         save_to_file_cache(cache_key, response_data)
 
-        return jsonify(response_data)
+        return response_data
     except Exception as e:
         logger.error(f"Error getting regions: {e}")
-        return jsonify({"error": str(e)}), 500
+        return {"error": str(e)}, 500
 
 
-@app.route("/api/forecast/all", methods=["GET"])
-def get_all_forecasts():
+@app.get("/api/forecast/all")
+async def get_all_forecasts(
+    data_type: str = "ward",
+    hours: int = 24,
+    filter_type: str = "all",
+    max_workers: int = 4,
+    batch_size: int = 0,
+    refresh: bool = False,
+):
     """Get forecast for all regions of the specified type"""
     try:
-        # Get query parameters
-        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
-        hours = int(request.args.get("hours", "24"))
-        filter_type = request.args.get(
-            "filter", "all"
-        )  # Optional filter for region types
-        max_workers = int(
-            request.args.get("workers", "4")
-        )  # Number of parallel workers
-        batch_size = int(
-            request.args.get("batch_size", "0")
-        )  # Optional batch size for processing
-        force_refresh = request.args.get("refresh", "false").lower() == "true"
-
         # Set reasonable limits
         if hours > 72:
             hours = 72  # Cap at 72 hours to prevent long processing times
@@ -448,7 +445,7 @@ def get_all_forecasts():
             cache_key += f"_batch{batch_size}"
 
         # Check memory cache first if not forcing refresh
-        if not force_refresh:
+        if not refresh:
             with cache_lock:
                 if cache_key in forecast_cache:
                     cache_entry = forecast_cache[cache_key]
@@ -456,7 +453,7 @@ def get_all_forecasts():
                     # Use cache if it's less than 30 minutes old
                     if (datetime.now() - cache_time).total_seconds() < 1800:
                         logger.info(f"Using memory cache for {cache_key}")
-                        return jsonify(cache_entry["data"])
+                        return cache_entry["data"]
 
             # Check file cache next
             file_cache_data = load_from_file_cache(cache_key)
@@ -467,15 +464,12 @@ def get_all_forecasts():
                         "data": file_cache_data,
                         "timestamp": datetime.now(),
                     }
-                return jsonify(file_cache_data)
+                return file_cache_data
 
         # Get regions directly from data manager instead of calling the endpoint
         df = data_manager.get_historical_trends_data(data_type)
         if df.empty:
-            return (
-                jsonify({"error": f"No historical data found for type {data_type}"}),
-                404,
-            )
+            return {"error": f"No historical data found for type {data_type}"}, 404
 
         # Get unique regions
         region_col = "ward_num" if data_type == "ward" else "ac_num"
@@ -494,10 +488,7 @@ def get_all_forecasts():
                 all_regions = [r for r in all_regions if str(r).startswith("w_")]
 
         if not all_regions:
-            return (
-                jsonify({"error": f"No regions found with filter: {filter_type}"}),
-                404,
-            )
+            return {"error": f"No regions found with filter: {filter_type}"}, 404
 
         # Sort regions naturally (1, 2, 10 instead of 1, 10, 2)
         all_regions.sort(
@@ -539,7 +530,7 @@ def get_all_forecasts():
                 region_cache_key = f"forecast_{data_type}_{hours}_{region}"
                 region_cache_data = load_from_file_cache(region_cache_key)
 
-                if region_cache_data and not force_refresh:
+                if region_cache_data and not refresh:
                     logger.info(
                         f"Worker {thread_id}: Using cached forecast for region {region}"
                     )
@@ -647,10 +638,7 @@ def get_all_forecasts():
                 forecaster.model.n_estimators = original_n_estimators
 
         if not results_by_region:
-            return (
-                jsonify({"error": "Failed to generate forecasts for any region"}),
-                500,
-            )
+            return {"error": "Failed to generate forecasts for any region"}, 500
 
         response_data = {
             "forecasts": results_by_region,
@@ -686,40 +674,47 @@ def get_all_forecasts():
             for key in keys_to_remove:
                 del forecast_cache[key]
 
-        return jsonify(response_data)
+        return response_data
 
     except Exception as e:
         logger.error(f"Error generating all forecasts: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
+        return {"error": str(e)}, 500
 
 
-@app.post ("/api/demand_forecast_ratio")
+@app.post("/api/demand_forecast_ratio")
 async def get_demand_forecast_ratio(req: Request):
-    """ 
+    """
     Get the ratio between forecasted demand and active drivers.
     This helps evaluate the supply-demand balance for each region.
     """
     try:
         # Get query parameters
-        
-        body =  await req.json()
+        body = await req.json()
         data_type = body.get("type", "ward")  # 'ward' or 'ca'
         hours = int(body.get("hours", "24"))
         region = body.get("region")
-        force_refresh = body.get("refresh", "false").lower() == "true"
-        
-        print("request_args: ", body)
+        force_refresh = body.get("refresh", "false")
+        if isinstance(force_refresh, bool):
+            # It's already a boolean
+            pass
+        elif isinstance(force_refresh, str):
+            force_refresh = force_refresh == "true"
+        else:
+            force_refresh = False
+
+        logger.info(f"Processing demand forecast ratio request for region {region}")
 
         # Create cache key
         cache_key = f"demand_driver_ratio_{data_type}_{hours}"
-        print("cache_key: ", cache_key)
 
         # Check file cache if not forcing refresh
         if not force_refresh:
             file_cache_data = load_from_file_cache(cache_key)
             if file_cache_data:
-                return file_cache_data.get("data").get("hourly_ratios").get(region)
+                hourly_ratios = file_cache_data.get("data", {}).get("hourly_ratios", {})
+                if region in hourly_ratios and hourly_ratios[region]:
+                    return hourly_ratios[region][0]
 
         # Load the active driver data from the JSON file
         driver_data = {}
@@ -760,16 +755,16 @@ async def get_demand_forecast_ratio(req: Request):
         except Exception as e:
             logger.error(f"Error loading driver data: {e}")
             logger.error(traceback.format_exc())
-            return jsonify({"error": f"Error loading driver data: {str(e)}"}), 500
+            return {"error": f"Error loading driver data: {str(e)}"}
 
         if not driver_data:
-            return jsonify({"error": "No driver data available"}), 404
+            return {"error": "No driver data available"}
 
         # Generate forecast for the same regions
         forecast_df = forecaster.forecast_next_hours(hours, data_type, region)
 
         if forecast_df is None or forecast_df.empty:
-            return jsonify({"error": "Failed to generate forecast"}), 500
+            return {"error": "Failed to generate forecast"}
 
         # Calculate ratios hour by hour
         region_col = "ward_num" if data_type == "ward" else "ac_num"
@@ -889,224 +884,12 @@ async def get_demand_forecast_ratio(req: Request):
         # Save to file cache
         save_to_file_cache(cache_key, response_data)
 
-        return jsonify(response_data)
+        return response_data
 
     except Exception as e:
         logger.error(f"Error calculating demand-driver ratio: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/surge_multiplier", methods=["GET"])
-def get_surge_multiplier():
-    """
-    Calculate surge multiplier based on demand-supply ratio.
-    Uses the formula: M = 1 + α * ((demand/supply) - 1)
-    """
-    try:
-        # Get query parameters
-        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
-        region = request.args.get("region")
-        alpha = float(request.args.get("alpha", "0.5"))  # Surge sensitivity parameter
-        force_refresh = request.args.get("refresh", "false").lower() == "true"
-
-        # Create cache key
-        cache_key = f"surge_multiplier_{data_type}_{region}_{alpha}"
-
-        # Check file cache if not forcing refresh
-        if not force_refresh:
-            file_cache_data = load_from_file_cache(cache_key)
-            if file_cache_data:
-                return jsonify(file_cache_data)
-
-        # Get the demand-supply ratio data
-        # We'll reuse the existing endpoint's logic but without creating a new HTTP request
-
-        # Load the active driver data from the JSON file
-        driver_data = {}
-        try:
-            file_path = os.path.join("data", f"driver_eda_{data_type}s_new_key.json")
-            if os.path.exists(file_path):
-                with open(file_path, "r") as f:
-                    driver_info = json.load(f)
-
-                # Convert to dictionary with ward_num/ac_num as keys
-                region_col = "ward_num" if data_type == "ward" else "ac_num"
-
-                # Aggregate driver data by region
-                for item in driver_info:
-                    if region_col in item and "active_drvr" in item:
-                        region_id = str(item[region_col])
-
-                        if region_id not in driver_data:
-                            driver_data[region_id] = {
-                                "active_drvr": 0,
-                                "drvr_notonride": 0,
-                                "drvr_onride": 0,
-                                "region": region_id,
-                            }
-
-                        # Sum up driver counts
-                        driver_data[region_id]["active_drvr"] += int(
-                            item.get("active_drvr", 0)
-                        )
-                        driver_data[region_id]["drvr_notonride"] += int(
-                            item.get("drvr_notonride", 0)
-                        )
-                        driver_data[region_id]["drvr_onride"] += int(
-                            item.get("drvr_onride", 0)
-                        )
-            else:
-                logger.warning(f"Driver data file not found: {file_path}")
-                return (
-                    jsonify({"error": f"Driver data file not found: {file_path}"}),
-                    404,
-                )
-        except Exception as e:
-            logger.error(f"Error loading driver data: {e}")
-            logger.error(traceback.format_exc())
-            return jsonify({"error": f"Error loading driver data: {str(e)}"}), 500
-
-        if not driver_data:
-            return jsonify({"error": "No driver data available"}), 404
-
-        # Generate forecast for the region
-        hours = 24  # Default to 24 hours forecast
-        forecast_df = forecaster.forecast_next_hours(hours, data_type, region)
-
-        if forecast_df is None or forecast_df.empty:
-            return jsonify({"error": "Failed to generate forecast"}), 500
-
-        # Calculate surge multipliers hour by hour
-        region_col = "ward_num" if data_type == "ward" else "ac_num"
-
-        # Helper function to calculate surge multiplier
-        def calculate_surge_multiplier(demand, supply, alpha=0.5):
-            """
-            Calculate surge multiplier based on demand/supply ratio
-            M = 1 + α * ((demand/supply) - 1)
-            """
-            if supply <= 0:
-                return 1.0  # Default to no surge if no supply data
-
-            multiplier = 1 + alpha * ((demand / supply) - 1)
-            # Cap the multiplier between 1.0 and 2.5
-            multiplier = max(1.0, min(2.5, multiplier))
-            return round(multiplier, 2)
-
-        # Prepare the result structure
-        hourly_surge = {}
-
-        # Process each hour of the forecast
-        for _, row in forecast_df.iterrows():
-            region_id = str(row[region_col])
-            hour = row["datetime"]
-            forecast_requests = row["forecast_requests"]
-
-            if region_id in driver_data:
-                active_drivers = driver_data[region_id]["active_drvr"]
-                available_drivers = driver_data[region_id]["drvr_notonride"]
-
-                # Calculate surge multipliers
-                active_surge = calculate_surge_multiplier(
-                    forecast_requests, active_drivers, alpha
-                )
-                available_surge = calculate_surge_multiplier(
-                    forecast_requests, available_drivers, alpha
-                )
-
-                # Use the higher of the two surge values for a more conservative approach
-                surge_multiplier = max(active_surge, available_surge)
-
-                # Initialize region in hourly_surge if not exists
-                if region_id not in hourly_surge:
-                    hourly_surge[region_id] = []
-
-                # Add hourly data
-                hourly_surge[region_id].append(
-                    {
-                        "datetime": hour.isoformat(),
-                        "forecast_requests": int(forecast_requests),
-                        "active_drivers": active_drivers,
-                        "available_drivers": available_drivers,
-                        "surge_multiplier": surge_multiplier,
-                        "demand_supply_ratio": round(
-                            forecast_requests / max(1, active_drivers), 2
-                        ),
-                    }
-                )
-
-        # Calculate overall statistics
-        all_hours_data = []
-        for region_data in hourly_surge.values():
-            all_hours_data.extend(region_data)
-
-        avg_surge = (
-            sum(item["surge_multiplier"] for item in all_hours_data)
-            / len(all_hours_data)
-            if all_hours_data
-            else 1.0
-        )
-        max_surge = max(
-            (item["surge_multiplier"] for item in all_hours_data), default=1.0
-        )
-        min_surge = min(
-            (item["surge_multiplier"] for item in all_hours_data), default=1.0
-        )
-
-        # Find peak surge hours
-        peak_hours = []
-        if all_hours_data:
-            # Group by hour
-            hour_groups = {}
-            for item in all_hours_data:
-                hour = datetime.fromisoformat(item["datetime"]).hour
-                if hour not in hour_groups:
-                    hour_groups[hour] = []
-                hour_groups[hour].append(item)
-
-            # Calculate average surge for each hour
-            hour_surge = {}
-            for hour, items in hour_groups.items():
-                hour_surge[hour] = sum(
-                    item["surge_multiplier"] for item in items
-                ) / len(items)
-
-            # Get top 3 peak surge hours
-            peak_hours = sorted(hour_surge.items(), key=lambda x: x[1], reverse=True)[
-                :3
-            ]
-            peak_hours = [
-                {"hour": hour, "avg_surge": round(surge, 2)}
-                for hour, surge in peak_hours
-            ]
-
-        response_data = {
-            "hourly_surge": hourly_surge,
-            "summary": {
-                "avg_surge_multiplier": round(avg_surge, 2),
-                "max_surge_multiplier": round(max_surge, 2),
-                "min_surge_multiplier": round(min_surge, 2),
-                "peak_surge_hours": peak_hours,
-                "alpha": alpha,
-            },
-            "metadata": {
-                "data_type": data_type,
-                "region": region,
-                "generated_at": datetime.now().isoformat(),
-                "driver_data_source": file_path,
-            },
-        }
-
-        # Save to file cache
-        save_to_file_cache(cache_key, response_data)
-
-        return jsonify(response_data)
-
-    except Exception as e:
-        logger.error(f"Error calculating surge multiplier: {e}")
-        logger.error(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
+        return {"error": str(e)}
 
 
 @app.post("/api/surge_pricing")
@@ -1120,23 +903,17 @@ async def get_surge_pricing(req: Request):
         data_type = body.get("type", "ward")  # 'ward' or 'ca'
         region = body.get("region")
         distance = float(body.get("distance", "5.0"))  # Trip distance in km
-        duration = float(
-            body.get("duration", "20.0")
-        )  # Trip duration in minutes
+        duration = float(body.get("duration", "20.0"))  # Trip duration in minutes
         alpha = float(body.get("alpha", "0.5"))  # Surge sensitivity parameter
-        current_time = body.get("time")  # Optional specific time for pricing
-
-        # If no specific time provided, use current time
-        if not current_time:
-            current_time = datetime.now().isoformat()
+        surge = bool(body.get("surge"))  # Surge multiplier enabled
 
         # Create cache key
-        cache_key = f"surge_pricing_{data_type}_{region}_{distance}_{duration}_{alpha}_{current_time}"
+        cache_key = f"surge_pricing_{data_type}_{region}_{distance}_{duration}_{alpha}"
 
         # Check file cache
         file_cache_data = load_from_file_cache(cache_key)
         if file_cache_data:
-            return jsonify(file_cache_data)
+            return file_cache_data
 
         # Calculate base fare
         base_fare = MINIMUM_PRICE + (PER_KM_VALUE * distance)
@@ -1149,7 +926,7 @@ async def get_surge_pricing(req: Request):
         forecast_df = forecaster.forecast_next_hours(hours, data_type, region)
 
         if forecast_df is None or forecast_df.empty:
-            return jsonify({"error": "Failed to generate forecast"}), 500
+            raise HTTPException(status_code=500, detail="Failed to generate forecast")
 
         # Load driver data
         driver_data = {}
@@ -1185,19 +962,22 @@ async def get_surge_pricing(req: Request):
                         driver_data[region_id]["drvr_onride"] += int(
                             item.get("drvr_onride", 0)
                         )
+
+                logger.info(f"Loaded driver data for {len(driver_data)} {data_type}s")
             else:
                 logger.warning(f"Driver data file not found: {file_path}")
-                return (
-                    jsonify({"error": f"Driver data file not found: {file_path}"}),
-                    404,
+                raise HTTPException(
+                    status_code=404, detail=f"Driver data file not found: {file_path}"
                 )
         except Exception as e:
             logger.error(f"Error loading driver data: {e}")
             logger.error(traceback.format_exc())
-            return jsonify({"error": f"Error loading driver data: {str(e)}"}), 500
+            raise HTTPException(
+                status_code=500, detail=f"Error loading driver data: {str(e)}"
+            )
 
         if not driver_data:
-            return jsonify({"error": "No driver data available"}), 404
+            raise HTTPException(status_code=404, detail="No driver data available")
 
         # Helper function to calculate surge multiplier
         def calculate_surge_multiplier(demand, supply, alpha=0.5):
@@ -1213,35 +993,17 @@ async def get_surge_pricing(req: Request):
             multiplier = max(1.0, min(2.5, multiplier))
             return round(multiplier, 2)
 
-        # Find the closest time in the forecast to the requested time
-        target_time = datetime.fromisoformat(current_time)
+        # Find the current time's forecast
         region_col = "ward_num" if data_type == "ward" else "ac_num"
-
-        closest_row = None
-        min_time_diff = float("inf")
-
-        for _, row in forecast_df.iterrows():
-            time_diff = abs((row["datetime"] - target_time).total_seconds())
-            if time_diff < min_time_diff:
-                min_time_diff = time_diff
-                closest_row = row
-
-        if closest_row is None:
-            return (
-                jsonify(
-                    {"error": "Could not find forecast data for the specified time"}
-                ),
-                404,
-            )
-
-        region_id = str(closest_row[region_col])
-        forecast_requests = closest_row["forecast_requests"]
+        current_forecast = forecast_df.iloc[0]  # Use the most recent forecast
+        region_id = str(current_forecast[region_col])
+        forecast_requests = current_forecast["forecast_requests"]
 
         # Get driver data for this region
         if region_id not in driver_data:
-            return (
-                jsonify({"error": f"No driver data available for region {region_id}"}),
-                404,
+            raise HTTPException(
+                status_code=404,
+                detail=f"No driver data available for region {region_id}",
             )
 
         active_drivers = driver_data[region_id]["active_drvr"]
@@ -1254,7 +1016,13 @@ async def get_surge_pricing(req: Request):
         available_surge = calculate_surge_multiplier(
             forecast_requests, available_drivers, alpha
         )
+
+        # Use the higher of the two surge values for a more conservative approach
         surge_multiplier = max(active_surge, available_surge)
+
+        # If surge is disabled, set multiplier to 1.0
+        if not surge:
+            surge_multiplier = 1.0
 
         # Calculate final price with surge
         total_price = subtotal * surge_multiplier
@@ -1272,7 +1040,7 @@ async def get_surge_pricing(req: Request):
                 "distance_km": distance,
                 "duration_min": duration,
                 "region": region_id,
-                "pricing_time": closest_row["datetime"].isoformat(),
+                "pricing_time": current_forecast["datetime"].isoformat(),
             },
             "demand_supply": {
                 "forecast_requests": int(forecast_requests),
@@ -1297,17 +1065,256 @@ async def get_surge_pricing(req: Request):
         # Save to file cache
         save_to_file_cache(cache_key, response_data)
 
-        return jsonify(response_data)
+        return response_data
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
         logger.error(f"Error calculating surge pricing: {e}")
         logger.error(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/nearby_high_demand")
+async def get_nearby_high_demand(
+    ward: str, max_distance: int = 5, hours: int = 3, refresh: bool = False
+):
+    """
+    Get high-demand locations near a rider's current ward.
+    Returns a list of nearby wards sorted by a score that considers both demand and distance.
+    """
+    try:
+        if not ward:
+            return {"error": "Current ward must be specified"}, 400
+
+        logger.info(
+            f"Processing request for ward {ward} with max_distance {max_distance}"
+        )
+
+        # Add prefix if not present
+        if not (ward.startswith("b_") or ward.startswith("w_")):
+            ward = f"b_{ward}"  # Default to 'b_' prefix if none provided
+            logger.info(f"Added prefix to ward: {ward}")
+
+        # Create cache key
+        cache_key = f"nearby_high_demand_{ward}_{max_distance}_{hours}"
+
+        # Check file cache if not forcing refresh
+        if not refresh:
+            try:
+                file_cache_data = load_from_file_cache(cache_key)
+                if file_cache_data:
+                    return file_cache_data
+            except Exception as e:
+                logger.warning(f"Error loading from cache: {e}")
+                # Continue with generating new data
+
+        # Get forecast for all wards
+        logger.info("Generating forecast...")
+        forecast_df = forecaster.forecast_next_hours(hours, "ward")
+
+        # Log forecast data details
+        if forecast_df is not None:
+            logger.info(f"Forecast DataFrame shape: {forecast_df.shape}")
+            logger.info(f"Forecast DataFrame columns: {forecast_df.columns.tolist()}")
+            logger.info(
+                f"Number of unique wards in forecast: {len(forecast_df['ward_num'].unique())}"
+            )
+            logger.info(
+                f"Sample ward numbers: {list(forecast_df['ward_num'].unique())[:5]}"
+            )
+            logger.info(f"Sample forecast data:\n{forecast_df.head().to_string()}")
+        else:
+            logger.error("Forecast DataFrame is None")
+            return {"error": "Failed to generate forecast"}, 500
+
+        if forecast_df is None or forecast_df.empty:
+            logger.error("Failed to generate forecast - forecast_df is None or empty")
+            return {"error": "Failed to generate forecast"}, 500
+
+        # Load driver data
+        driver_data = {}
+        try:
+            file_path = os.path.join("data", "driver_eda_wards_new_key.json")
+            if os.path.exists(file_path):
+                with open(file_path, "r") as f:
+                    driver_info = json.load(f)
+                    logger.info(f"Loaded driver info with {len(driver_info)} records")
+                    if len(driver_info) > 0:
+                        logger.info(f"Sample driver info record: {driver_info[0]}")
+
+                # Aggregate driver data by ward
+                for item in driver_info:
+                    if "ward_num" in item and "active_drvr" in item:
+                        ward_id = str(item["ward_num"])
+                        if ward_id not in driver_data:
+                            driver_data[ward_id] = {
+                                "active_drvr": 0,
+                                "drvr_notonride": 0,
+                                "drvr_onride": 0,
+                            }
+                        driver_data[ward_id]["active_drvr"] += int(
+                            item.get("active_drvr", 0)
+                        )
+                        driver_data[ward_id]["drvr_notonride"] += int(
+                            item.get("drvr_notonride", 0)
+                        )
+                        driver_data[ward_id]["drvr_onride"] += int(
+                            item.get("drvr_onride", 0)
+                        )
+
+                logger.info(f"Loaded driver data for {len(driver_data)} wards")
+                logger.info(
+                    f"Sample ward IDs in driver data: {list(driver_data.keys())[:5]}"
+                )
+                if len(driver_data) > 0:
+                    sample_ward = list(driver_data.keys())[0]
+                    logger.info(
+                        f"Sample driver data for ward {sample_ward}: {driver_data[sample_ward]}"
+                    )
+            else:
+                logger.warning(f"Driver data file not found: {file_path}")
+                return {"error": f"Driver data file not found: {file_path}"}, 404
+        except Exception as e:
+            logger.error(f"Error loading driver data: {e}")
+            logger.error(traceback.format_exc())
+            return {"error": f"Error loading driver data: {str(e)}"}, 500
+
+        # Helper function to extract numeric part from ward ID
+        def get_ward_number(ward_id):
+            try:
+                # Split by underscore and take the last part
+                parts = ward_id.split("_")
+                if len(parts) > 1:
+                    return int(parts[-1])
+                return int(ward_id)
+            except (ValueError, IndexError):
+                return None
+
+        # Get the numeric part of the current ward
+        current_ward_num = get_ward_number(ward)
+        if current_ward_num is None:
+            logger.error(f"Invalid ward format: {ward}")
+            return {"error": f"Invalid ward format: {ward}"}, 400
+
+        logger.info(f"Current ward number: {current_ward_num}")
+
+        # Calculate metrics for each ward
+        ward_metrics = {}
+        processed_wards = 0
+        skipped_wards = 0
+
+        for ward_num in forecast_df["ward_num"].unique():
+            try:
+                # Get numeric part of target ward
+                target_ward_num = get_ward_number(str(ward_num))
+                if target_ward_num is None:
+                    logger.warning(f"Could not extract number from ward: {ward_num}")
+                    skipped_wards += 1
+                    continue
+
+                # Calculate distance
+                distance = abs(target_ward_num - current_ward_num)
+
+                # Skip if ward is too far
+                if distance > max_distance:
+                    skipped_wards += 1
+                    continue
+
+                # Get forecast data for this ward
+                ward_forecast = forecast_df[forecast_df["ward_num"] == ward_num]
+                if ward_forecast.empty:
+                    logger.warning(f"No forecast data found for ward {ward_num}")
+                    skipped_wards += 1
+                    continue
+
+                # Calculate average forecasted demand
+                avg_demand = ward_forecast["forecast_requests"].mean()
+                if pd.isna(avg_demand):
+                    logger.warning(f"Invalid forecast data for ward {ward_num}")
+                    skipped_wards += 1
+                    continue
+
+                # Get driver data
+                ward_drivers = driver_data.get(
+                    str(ward_num),
+                    {"active_drvr": 0, "drvr_notonride": 0, "drvr_onride": 0},
+                )
+
+                # Calculate demand-supply ratio
+                active_drivers = max(
+                    1, ward_drivers["active_drvr"]
+                )  # Avoid division by zero
+                demand_supply_ratio = avg_demand / active_drivers
+
+                # Calculate score (weighted combination of demand and proximity)
+                # Score formula: 0.7 * normalized_demand - 0.3 * normalized_distance
+                normalized_demand = demand_supply_ratio / (
+                    max_distance if max_distance > 0 else 1
+                )
+                normalized_distance = distance / max_distance if max_distance > 0 else 0
+                score = 0.7 * normalized_demand - 0.3 * normalized_distance
+
+                ward_metrics[ward_num] = {
+                    "ward": ward_num,
+                    "distance": distance,
+                    "avg_demand": round(avg_demand, 2),
+                    "active_drivers": ward_drivers["active_drvr"],
+                    "available_drivers": ward_drivers["drvr_notonride"],
+                    "demand_supply_ratio": round(demand_supply_ratio, 2),
+                    "score": round(score, 3),
+                }
+                processed_wards += 1
+                logger.debug(
+                    f"Processed ward {ward_num}: distance={distance}, score={score}"
+                )
+            except Exception as e:
+                logger.warning(f"Error processing ward {ward_num}: {str(e)}")
+                skipped_wards += 1
+                continue
+
+        logger.info(f"Processed {processed_wards} wards, skipped {skipped_wards} wards")
+        logger.info(f"Calculated metrics for {len(ward_metrics)} wards")
+
+        # Sort wards by score
+        sorted_wards = sorted(
+            ward_metrics.values(), key=lambda x: x["score"], reverse=True
+        )
+
+        # Take top 5 wards
+        top_wards = sorted_wards[:5]
+
+        response_data = {
+            "current_ward": ward,
+            "recommendations": top_wards,
+            "metadata": {
+                "max_distance": max_distance,
+                "hours_ahead": hours,
+                "generated_at": datetime.now().isoformat(),
+                "processed_wards": processed_wards,
+                "skipped_wards": skipped_wards,
+            },
+        }
+
+        # Save to file cache
+        try:
+            save_to_file_cache(cache_key, response_data)
+        except Exception as e:
+            logger.warning(f"Error saving to cache: {e}")
+
+        logger.info(f"Returning {len(top_wards)} recommendations")
+        return response_data
+
+    except Exception as e:
+        logger.error(f"Error finding nearby high-demand areas: {e}")
+        logger.error(traceback.format_exc())
+        return {"error": str(e)}, 500
 
 
 if __name__ == "__main__":
     # Ensure necessary directories exist
     import uvicorn
+
     os.makedirs("logs", exist_ok=True)
 
     uvicorn.run(app, host="127.0.0.1", port=8888)

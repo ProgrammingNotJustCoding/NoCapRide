@@ -484,6 +484,54 @@
         "documentation": {}
     },
     {
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "CORSMiddleware",
+        "importPath": "fastapi.middleware.cors",
+        "description": "fastapi.middleware.cors",
+        "isExtraImport": true,
+        "detail": "fastapi.middleware.cors",
+        "documentation": {}
+    },
+    {
+        "label": "Request",
+        "importPath": "starlette.requests",
+        "description": "starlette.requests",
+        "isExtraImport": true,
+        "detail": "starlette.requests",
+        "documentation": {}
+    },
+    {
+        "label": "BaseModel",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
         "label": "RideDataManager",
         "importPath": "panda",
         "description": "panda",
@@ -557,7 +605,7 @@
         "kind": 2,
         "importPath": "models.fetch",
         "description": "models.fetch",
-        "peekOfCode": "def create_sample_data():\n    \"\"\"Create sample data files for testing\"\"\"\n    try:\n        logger.info(\"Creating sample data files\")\n        # Sample trends data\n        trends_data = []\n        for ward_num in range(170, 180):\n            for hour in range(24):\n                trends_data.append(\n                    {",
+        "peekOfCode": "def create_sample_data():\n    \"\"\"Create sample data files for testing\"\"\"\n    try:\n        logger.info(\"Creating sample data files\")\n        # Get unique ward numbers from existing data files\n        ward_nums = set()\n        try:\n            with open(\"data/driver_eda_wards_new_key.json\", \"r\") as f:\n                driver_data = json.load(f)\n                for entry in driver_data:",
         "detail": "models.fetch",
         "documentation": {}
     },
@@ -1147,74 +1195,11 @@
         "documentation": {}
     },
     {
-        "label": "health_check",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def health_check():\n    \"\"\"Health check endpoint\"\"\"\n    return jsonify({\"status\": \"ok\", \"timestamp\": datetime.now().isoformat()})\n@app.route(\"/api/forecast\", methods=[\"GET\"])\ndef get_forecast():\n    \"\"\"Get forecast for the specified parameters\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "get_forecast",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def get_forecast():\n    \"\"\"Get forecast for the specified parameters\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))\n        region = request.args.get(\"region\")\n        force_refresh = request.args.get(\"refresh\", \"false\").lower() == \"true\"\n        # No longer convert region to integer - keep it as a string\n        # This allows for region identifiers like \"b_1\" or \"w_0\"",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "get_regions",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def get_regions():\n    \"\"\"\n    Get available regions for a given type.\n    \"\"\"\n    try:\n        data_type = request.args.get(\"type\", \"ward\")\n        filter_type = request.args.get(\"filter\", \"all\")  # 'all', 'simple', 'b', 'w'\n        force_refresh = request.args.get(\"refresh\", \"false\").lower() == \"true\"\n        # Create cache key\n        cache_key = f\"regions_{data_type}_{filter_type}\"",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "get_all_forecasts",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def get_all_forecasts():\n    \"\"\"Get forecast for all regions of the specified type\"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))\n        filter_type = request.args.get(\n            \"filter\", \"all\"\n        )  # Optional filter for region types\n        max_workers = int(",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "get_demand_forecast_ratio",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def get_demand_forecast_ratio():\n    \"\"\"\n    Get the ratio between forecasted demand and active drivers.\n    This helps evaluate the supply-demand balance for each region.\n    \"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        hours = int(request.args.get(\"hours\", \"24\"))\n        region = request.args.get(\"region\")",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "get_surge_multiplier",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def get_surge_multiplier():\n    \"\"\"\n    Calculate surge multiplier based on demand-supply ratio.\n    Uses the formula: M = 1 + α * ((demand/supply) - 1)\n    \"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        region = request.args.get(\"region\")\n        alpha = float(request.args.get(\"alpha\", \"0.5\"))  # Surge sensitivity parameter",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
-        "label": "get_surge_pricing",
-        "kind": 2,
-        "importPath": "api",
-        "description": "api",
-        "peekOfCode": "def get_surge_pricing():\n    \"\"\"\n    Calculate the final price with surge for a given trip.\n    \"\"\"\n    try:\n        # Get query parameters\n        data_type = request.args.get(\"type\", \"ward\")  # 'ward' or 'ca'\n        region = request.args.get(\"region\")\n        distance = float(request.args.get(\"distance\", \"5.0\"))  # Trip distance in km\n        duration = float(",
-        "detail": "api",
-        "documentation": {}
-    },
-    {
         "label": "logger",
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "logger = logging.getLogger(\"forecast_api\")\n# Create Flask app\napp = Flask(__name__)\nCORS(app)  # Enable CORS for all routes\n# Initialize data manager and forecaster\ndata_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety",
+        "peekOfCode": "logger = logging.getLogger(\"forecast_api\")\n# Create Flask app\napp = FastAPI()\n# Enable CORS\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],\n    allow_credentials=True,\n    allow_methods=[\"GET\", \"POST\"],\n    allow_headers=[\"*\"],",
         "detail": "api",
         "documentation": {}
     },
@@ -1223,7 +1208,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "app = Flask(__name__)\nCORS(app)  # Enable CORS for all routes\n# Initialize data manager and forecaster\ndata_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists",
+        "peekOfCode": "app = FastAPI()\n# Enable CORS\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],\n    allow_credentials=True,\n    allow_methods=[\"GET\", \"POST\"],\n    allow_headers=[\"*\"],\n)\n# Initialize data manager and forecaster",
         "detail": "api",
         "documentation": {}
     },
@@ -1232,7 +1217,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "data_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models",
+        "peekOfCode": "data_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data",
         "detail": "api",
         "documentation": {}
     },
@@ -1241,7 +1226,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "forecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:",
+        "peekOfCode": "forecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:",
         "detail": "api",
         "documentation": {}
     },
@@ -1250,7 +1235,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "forecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")",
+        "peekOfCode": "forecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:\n    logger.info(\"Loading historical data and models...\")\n    data_manager.load_historical_data()",
         "detail": "api",
         "documentation": {}
     },
@@ -1259,7 +1244,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "cache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:",
+        "peekOfCode": "cache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:\n    logger.info(\"Loading historical data and models...\")\n    data_manager.load_historical_data()\n    logger.info(\"Fetching current data from endpoints...\")\n    fetched_data = data_manager.fetch_all_endpoints()",
         "detail": "api",
         "documentation": {}
     },
@@ -1268,7 +1253,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "CACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:\n    logger.error(f\"Error loading data or models: {e}\")\n    logger.error(traceback.format_exc())",
+        "peekOfCode": "CACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:\n    logger.info(\"Loading historical data and models...\")\n    data_manager.load_historical_data()\n    logger.info(\"Fetching current data from endpoints...\")\n    fetched_data = data_manager.fetch_all_endpoints()\n    if fetched_data:\n        logger.info(\"Successfully fetched current data\")",
         "detail": "api",
         "documentation": {}
     },

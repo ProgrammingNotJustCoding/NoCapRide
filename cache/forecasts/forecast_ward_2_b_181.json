@@ -1,0 +1,22 @@
+{
+  "data": {
+    "forecast": [
+      {
+        "datetime": "2025-03-16T08:00:00",
+        "forecast_requests": 98
+      },
+      {
+        "datetime": "2025-03-16T09:00:00",
+        "forecast_requests": 100
+      }
+    ],
+    "metadata": {
+      "data_type": "ward",
+      "hours": 2,
+      "region": "b_181",
+      "generated_at": "2025-03-16T07:33:06.603106"
+    }
+  },
+  "cached_at": "2025-03-16T07:33:06.603118",
+  "key": "forecast_ward_2_b_181"
+}

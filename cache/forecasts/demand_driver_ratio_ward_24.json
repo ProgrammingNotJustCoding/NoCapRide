@@ -1,0 +1,232 @@
+{
+  "data": {
+    "hourly_ratios": {
+      "b_100": [
+        {
+          "datetime": "2025-03-16T09:00:00",
+          "forecast_requests": 279,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.53,
+          "available_ratio": 1.68
+        },
+        {
+          "datetime": "2025-03-16T10:00:00",
+          "forecast_requests": 284,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.56,
+          "available_ratio": 1.71
+        },
+        {
+          "datetime": "2025-03-16T11:00:00",
+          "forecast_requests": 304,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.67,
+          "available_ratio": 1.83
+        },
+        {
+          "datetime": "2025-03-16T12:00:00",
+          "forecast_requests": 313,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.72,
+          "available_ratio": 1.89
+        },
+        {
+          "datetime": "2025-03-16T13:00:00",
+          "forecast_requests": 320,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.76,
+          "available_ratio": 1.93
+        },
+        {
+          "datetime": "2025-03-16T14:00:00",
+          "forecast_requests": 320,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.76,
+          "available_ratio": 1.93
+        },
+        {
+          "datetime": "2025-03-16T15:00:00",
+          "forecast_requests": 324,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.78,
+          "available_ratio": 1.95
+        },
+        {
+          "datetime": "2025-03-16T16:00:00",
+          "forecast_requests": 328,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.8,
+          "available_ratio": 1.98
+        },
+        {
+          "datetime": "2025-03-16T17:00:00",
+          "forecast_requests": 324,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.78,
+          "available_ratio": 1.95
+        },
+        {
+          "datetime": "2025-03-16T18:00:00",
+          "forecast_requests": 325,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.79,
+          "available_ratio": 1.96
+        },
+        {
+          "datetime": "2025-03-16T19:00:00",
+          "forecast_requests": 324,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.78,
+          "available_ratio": 1.95
+        },
+        {
+          "datetime": "2025-03-16T20:00:00",
+          "forecast_requests": 262,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.44,
+          "available_ratio": 1.58
+        },
+        {
+          "datetime": "2025-03-16T21:00:00",
+          "forecast_requests": 267,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.47,
+          "available_ratio": 1.61
+        },
+        {
+          "datetime": "2025-03-16T22:00:00",
+          "forecast_requests": 248,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.36,
+          "available_ratio": 1.49
+        },
+        {
+          "datetime": "2025-03-16T23:00:00",
+          "forecast_requests": 175,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 0.96,
+          "available_ratio": 1.05
+        },
+        {
+          "datetime": "2025-03-17T00:00:00",
+          "forecast_requests": 167,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 0.92,
+          "available_ratio": 1.01
+        },
+        {
+          "datetime": "2025-03-17T01:00:00",
+          "forecast_requests": 189,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.04,
+          "available_ratio": 1.14
+        },
+        {
+          "datetime": "2025-03-17T02:00:00",
+          "forecast_requests": 138,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 0.76,
+          "available_ratio": 0.83
+        },
+        {
+          "datetime": "2025-03-17T03:00:00",
+          "forecast_requests": 145,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 0.8,
+          "available_ratio": 0.87
+        },
+        {
+          "datetime": "2025-03-17T04:00:00",
+          "forecast_requests": 197,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.08,
+          "available_ratio": 1.19
+        },
+        {
+          "datetime": "2025-03-17T05:00:00",
+          "forecast_requests": 163,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 0.9,
+          "available_ratio": 0.98
+        },
+        {
+          "datetime": "2025-03-17T06:00:00",
+          "forecast_requests": 174,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 0.96,
+          "available_ratio": 1.05
+        },
+        {
+          "datetime": "2025-03-17T07:00:00",
+          "forecast_requests": 209,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.15,
+          "available_ratio": 1.26
+        },
+        {
+          "datetime": "2025-03-17T08:00:00",
+          "forecast_requests": 198,
+          "active_drivers": 182,
+          "available_drivers": 166,
+          "demand_supply_ratio": 1.09,
+          "available_ratio": 1.19
+        }
+      ]
+    },
+    "summary": {
+      "total_forecast_requests": 5977,
+      "avg_active_drivers": 182.0,
+      "avg_available_drivers": 166.0,
+      "overall_demand_supply_ratio": 32.84,
+      "overall_available_ratio": 36.01,
+      "regions_count": 1,
+      "hours_count": 24,
+      "peak_hours": [
+        {
+          "hour": 16,
+          "avg_demand": 328.0
+        },
+        {
+          "hour": 18,
+          "avg_demand": 325.0
+        },
+        {
+          "hour": 15,
+          "avg_demand": 324.0
+        }
+      ]
+    },
+    "metadata": {
+      "data_type": "ward",
+      "hours": 24,
+      "region": "b_100",
+      "generated_at": "2025-03-16T08:34:20.378691",
+      "driver_data_source": "data/driver_eda_wards_new_key.json"
+    }
+  },
+  "cached_at": "2025-03-16T08:34:20.378706",
+  "key": "demand_driver_ratio_ward_24"
+}

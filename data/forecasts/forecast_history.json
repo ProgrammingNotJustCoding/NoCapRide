@@ -1,1 +1,1 @@
-[{"timestamp": "2025-03-16T08:34:20.377405", "data_type": "ward", "region": "b_100", "hours": 24, "path": "data/forecasts/forecast_ward_b_100_20250316_083420.csv"}]
+[{"timestamp": "2025-03-16T10:12:03.670487", "data_type": "ward", "region": null, "hours": 3, "path": "data/forecasts/forecast_ward_20250316_101203.csv"}, {"timestamp": "2025-03-16T10:20:36.836195", "data_type": "ward", "region": null, "hours": 3, "path": "data/forecasts/forecast_ward_20250316_102036.csv"}]

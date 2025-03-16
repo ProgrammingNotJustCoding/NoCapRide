@@ -2,23 +2,15 @@ import os
 import json
 import logging
 import traceback
-from datetime import datetime, timedelta
-from flask import Flask, jsonify, request
-from flask_cors import CORS
 import pandas as pd
-import numpy as np
-import pickle
 import threading
 import functools
-from werkzeug.serving import run_simple
 import re
-import concurrent.futures
 import time
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
-from pydantic import BaseModel
-from typing import Optional
+from datetime import datetime
 
 # Import from the existing forecasting module
 from panda import RideDataManager, RideRequestForecast
@@ -58,6 +50,9 @@ cache_lock = threading.Lock()
 # Ensure cache directory exists
 CACHE_DIR = "cache/forecasts"
 os.makedirs(CACHE_DIR, exist_ok=True)
+
+LOGS_DIR = "logs"
+os.makedirs(LOGS_DIR, exist_ok=True)
 
 # Load historical data and models, and fetch current data
 try:
@@ -703,191 +698,57 @@ async def get_demand_forecast_ratio(req: Request):
         else:
             force_refresh = False
 
-        logger.info(f"Processing demand forecast ratio request for region {region}")
+        print("request_args: ", body)
 
         # Create cache key
         cache_key = f"demand_driver_ratio_{data_type}_{hours}"
+        print("cache_key: ", cache_key)
 
-        # Check file cache if not forcing refresh
-        if not force_refresh:
-            file_cache_data = load_from_file_cache(cache_key)
-            if file_cache_data:
-                hourly_ratios = file_cache_data.get("data", {}).get("hourly_ratios", {})
-                if region in hourly_ratios and hourly_ratios[region]:
-                    return hourly_ratios[region][0]
-
-        # Load the active driver data from the JSON file
-        driver_data = {}
+        # Load data from file instead of calculating
         try:
-            file_path = os.path.join("data", f"driver_eda_{data_type}s_new_key.json")
-            if os.path.exists(file_path):
+            # Check multiple possible locations for the file
+            possible_paths = [
+                f"demand_driver_ratio_{data_type}_{hours}.json",
+                os.path.join("data", f"demand_driver_ratio_{data_type}_{hours}.json"),
+                os.path.join("..", f"demand_driver_ratio_{data_type}_{hours}.json"),
+                os.path.join(
+                    os.getcwd(), f"demand_driver_ratio_{data_type}_{hours}.json"
+                ),
+            ]
+
+            file_path = None
+            for path in possible_paths:
+                if os.path.exists(path):
+                    file_path = path
+                    break
+
+            if file_path:
+                logger.info(f"Found data file at: {file_path}")
                 with open(file_path, "r") as f:
-                    driver_info = json.load(f)
+                    file_data = json.load(f)
 
-                # Convert to dictionary with ward_num/ac_num as keys
-                region_col = "ward_num" if data_type == "ward" else "ac_num"
-
-                # Aggregate driver data by region
-                for item in driver_info:
-                    if region_col in item and "active_drvr" in item:
-                        region_id = str(item[region_col])
-
-                        if region_id not in driver_data:
-                            driver_data[region_id] = {
-                                "active_drvr": 0,
-                                "drvr_notonride": 0,
-                                "drvr_onride": 0,
-                                "region": region_id,
-                            }
-
-                        # Sum up driver counts
-                        driver_data[region_id]["active_drvr"] += int(
-                            item.get("active_drvr", 0)
-                        )
-                        driver_data[region_id]["drvr_notonride"] += int(
-                            item.get("drvr_notonride", 0)
-                        )
-                        driver_data[region_id]["drvr_onride"] += int(
-                            item.get("drvr_onride", 0)
-                        )
+                hourly_ratios = file_data.get("data", {}).get("hourly_ratios", {})
+                if region in hourly_ratios and hourly_ratios[region]:
+                    # Return only the first record for the specified region
+                    return hourly_ratios[region][0]
+                else:
+                    return {"error": f"No data available for region {region}"}
             else:
-                logger.warning(f"Driver data file not found: {file_path}")
+                # Print the current working directory to help debug
+                cwd = os.getcwd()
+                logger.error(f"Current working directory: {cwd}")
+                logger.error(f"Could not find data file. Tried paths: {possible_paths}")
+                return {
+                    "error": f"Data file not found: {possible_paths[0]}. Current directory: {cwd}"
+                }
+
         except Exception as e:
-            logger.error(f"Error loading driver data: {e}")
+            logger.error(f"Error loading data from file: {e}")
             logger.error(traceback.format_exc())
-            return {"error": f"Error loading driver data: {str(e)}"}
-
-        if not driver_data:
-            return {"error": "No driver data available"}
-
-        # Generate forecast for the same regions
-        forecast_df = forecaster.forecast_next_hours(hours, data_type, region)
-
-        if forecast_df is None or forecast_df.empty:
-            return {"error": "Failed to generate forecast"}
-
-        # Calculate ratios hour by hour
-        region_col = "ward_num" if data_type == "ward" else "ac_num"
-
-        # Prepare the result structure
-        hourly_ratios = {}
-
-        # Process each hour of the forecast
-        for _, row in forecast_df.iterrows():
-            region_id = str(row[region_col])
-            hour = row["datetime"]
-            forecast_requests = row["forecast_requests"]
-
-            if region_id in driver_data:
-                active_drivers = driver_data[region_id]["active_drvr"]
-                available_drivers = driver_data[region_id]["drvr_notonride"]
-
-                # Calculate ratios
-                demand_supply_ratio = 0
-                if active_drivers > 0:
-                    demand_supply_ratio = forecast_requests / active_drivers
-
-                available_ratio = 0
-                if available_drivers > 0:
-                    available_ratio = forecast_requests / available_drivers
-
-                # Initialize region in hourly_ratios if not exists
-                if region_id not in hourly_ratios:
-                    hourly_ratios[region_id] = []
-
-                # Add hourly data
-                hourly_ratios[region_id].append(
-                    {
-                        "datetime": hour.isoformat(),
-                        "forecast_requests": int(forecast_requests),
-                        "active_drivers": active_drivers,
-                        "available_drivers": available_drivers,
-                        "demand_supply_ratio": round(demand_supply_ratio, 2),
-                        "available_ratio": round(available_ratio, 2),
-                    }
-                )
-
-        # Calculate overall statistics
-        all_hours_data = []
-        for region_data in hourly_ratios.values():
-            all_hours_data.extend(region_data)
-
-        total_forecast = sum(item["forecast_requests"] for item in all_hours_data)
-        total_drivers = (
-            sum(item["active_drivers"] for item in all_hours_data) / len(all_hours_data)
-            if all_hours_data
-            else 0
-        )
-        total_available = (
-            sum(item["available_drivers"] for item in all_hours_data)
-            / len(all_hours_data)
-            if all_hours_data
-            else 0
-        )
-
-        overall_ratio = 0
-        if total_drivers > 0:
-            overall_ratio = total_forecast / (total_drivers * len(hourly_ratios))
-
-        available_ratio = 0
-        if total_available > 0:
-            available_ratio = total_forecast / (total_available * len(hourly_ratios))
-
-        # Find peak demand hours
-        peak_hours = []
-        if all_hours_data:
-            # Group by hour
-            hour_groups = {}
-            for item in all_hours_data:
-                hour = datetime.fromisoformat(item["datetime"]).hour
-                if hour not in hour_groups:
-                    hour_groups[hour] = []
-                hour_groups[hour].append(item)
-
-            # Calculate average demand for each hour
-            hour_demand = {}
-            for hour, items in hour_groups.items():
-                hour_demand[hour] = sum(
-                    item["forecast_requests"] for item in items
-                ) / len(items)
-
-            # Get top 3 peak hours
-            peak_hours = sorted(hour_demand.items(), key=lambda x: x[1], reverse=True)[
-                :3
-            ]
-            peak_hours = [
-                {"hour": hour, "avg_demand": round(demand, 2)}
-                for hour, demand in peak_hours
-            ]
-
-        response_data = {
-            "hourly_ratios": hourly_ratios,
-            "summary": {
-                "total_forecast_requests": total_forecast,
-                "avg_active_drivers": round(total_drivers, 2),
-                "avg_available_drivers": round(total_available, 2),
-                "overall_demand_supply_ratio": round(overall_ratio, 2),
-                "overall_available_ratio": round(available_ratio, 2),
-                "regions_count": len(hourly_ratios),
-                "hours_count": hours,
-                "peak_hours": peak_hours,
-            },
-            "metadata": {
-                "data_type": data_type,
-                "hours": hours,
-                "region": region,
-                "generated_at": datetime.now().isoformat(),
-                "driver_data_source": file_path,
-            },
-        }
-
-        # Save to file cache
-        save_to_file_cache(cache_key, response_data)
-
-        return response_data
+            return {"error": f"Error loading data: {str(e)}"}
 
     except Exception as e:
-        logger.error(f"Error calculating demand-driver ratio: {e}")
+        logger.error(f"Error in demand forecast ratio: {e}")
         logger.error(traceback.format_exc())
         return {"error": str(e)}
 
@@ -907,172 +768,99 @@ async def get_surge_pricing(req: Request):
         alpha = float(body.get("alpha", "0.5"))  # Surge sensitivity parameter
         surge = bool(body.get("surge"))  # Surge multiplier enabled
 
-        # Create cache key
-        cache_key = f"surge_pricing_{data_type}_{region}_{distance}_{duration}_{alpha}"
+        # Get demand/supply data from the stored JSON file
+        # Check multiple possible locations for the file
+        possible_paths = [
+            f"demand_driver_ratio_{data_type}_{24}.json",
+            os.path.join("data", f"demand_driver_ratio_{data_type}_{24}.json"),
+            os.path.join("..", f"demand_driver_ratio_{data_type}_{24}.json"),
+            os.path.join(os.getcwd(), f"demand_driver_ratio_{data_type}_{24}.json"),
+        ]
 
-        # Check file cache
-        file_cache_data = load_from_file_cache(cache_key)
-        if file_cache_data:
-            return file_cache_data
+        file_path = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                file_path = path
+                break
 
-        # Calculate base fare
-        base_fare = MINIMUM_PRICE + (PER_KM_VALUE * distance)
-        time_fare = duration * PER_MIN_CHARGE
-        subtotal = base_fare + time_fare
-
-        # Get surge multiplier for the current time and region
-        # First, get the hourly surge data
-        hours = 24  # Default to 24 hours forecast
-        forecast_df = forecaster.forecast_next_hours(hours, data_type, region)
-
-        if forecast_df is None or forecast_df.empty:
-            raise HTTPException(status_code=500, detail="Failed to generate forecast")
-
-        # Load driver data
-        driver_data = {}
         try:
-            file_path = os.path.join("data", f"driver_eda_{data_type}s_new_key.json")
-            if os.path.exists(file_path):
+            if file_path:
+                logger.info(f"Found data file at: {file_path}")
                 with open(file_path, "r") as f:
-                    driver_info = json.load(f)
+                    data = json.load(f)
 
-                # Convert to dictionary with ward_num/ac_num as keys
-                region_col = "ward_num" if data_type == "ward" else "ac_num"
+                hourly_ratios = data.get("data", {}).get("hourly_ratios", {})
+                if region not in hourly_ratios or not hourly_ratios[region]:
+                    return {"error": f"No data available for region {region}"}
 
-                # Aggregate driver data by region
-                for item in driver_info:
-                    if region_col in item and "active_drvr" in item:
-                        region_id = str(item[region_col])
+                # Get the first record for this region
+                region_data = hourly_ratios[region][0]
+                demand = region_data.get("forecast_requests", 0)
+                supply = region_data.get(
+                    "active_drivers", 1
+                )  # Default to 1 to avoid division by zero
 
-                        if region_id not in driver_data:
-                            driver_data[region_id] = {
-                                "active_drvr": 0,
-                                "drvr_notonride": 0,
-                                "drvr_onride": 0,
-                                "region": region_id,
-                            }
+                # Calculate base fare
+                base_fare = MINIMUM_PRICE + (PER_KM_VALUE * distance)
+                time_fare = duration * PER_MIN_CHARGE
+                subtotal = base_fare + time_fare
 
-                        # Sum up driver counts
-                        driver_data[region_id]["active_drvr"] += int(
-                            item.get("active_drvr", 0)
-                        )
-                        driver_data[region_id]["drvr_notonride"] += int(
-                            item.get("drvr_notonride", 0)
-                        )
-                        driver_data[region_id]["drvr_onride"] += int(
-                            item.get("drvr_onride", 0)
-                        )
+                # Calculate surge multiplier
+                demand_supply_ratio = demand / supply if supply > 0 else 1.0
+                surge_multiplier = 1 + alpha * (demand_supply_ratio - 1)
 
-                logger.info(f"Loaded driver data for {len(driver_data)} {data_type}s")
+                if surge == False:
+                    surge_multiplier = 1.0
+                else:
+                    surge_multiplier = max(min(2, round(surge_multiplier, 2)), 1)
+
+                # Calculate final price with surge
+                total_price = subtotal * surge_multiplier
+
+                # Prepare response
+                return {
+                    "pricing": {
+                        "base_fare": round(base_fare, 2),
+                        "time_fare": round(time_fare, 2),
+                        "subtotal": round(subtotal, 2),
+                        "surge_multiplier": surge_multiplier,
+                        "total_price": round(total_price, 2),
+                    },
+                    "trip_details": {
+                        "distance_km": distance,
+                        "duration_min": duration,
+                        "region": region,
+                        "pricing_time": region_data.get("datetime"),
+                    },
+                    "demand_supply": {
+                        "forecast_requests": demand,
+                        "active_drivers": supply,
+                        "available_drivers": region_data.get("available_drivers", 0),
+                        "demand_supply_ratio": round(demand_supply_ratio, 2),
+                    },
+                    "pricing_constants": {
+                        "minimum_price": MINIMUM_PRICE,
+                        "per_km_value": PER_KM_VALUE,
+                        "per_min_charge": PER_MIN_CHARGE,
+                        "alpha": alpha,
+                    },
+                }
             else:
-                logger.warning(f"Driver data file not found: {file_path}")
-                raise HTTPException(
-                    status_code=404, detail=f"Driver data file not found: {file_path}"
-                )
+                # Print the current working directory to help debug
+                cwd = os.getcwd()
+                logger.error(f"Current working directory: {cwd}")
+                logger.error(f"Could not find data file. Tried paths: {possible_paths}")
+                return {"error": f"Data file not found. Current directory: {cwd}"}
+
         except Exception as e:
-            logger.error(f"Error loading driver data: {e}")
+            logger.error(f"Error loading data from file: {e}")
             logger.error(traceback.format_exc())
-            raise HTTPException(
-                status_code=500, detail=f"Error loading driver data: {str(e)}"
-            )
+            return {"error": f"Error loading data: {str(e)}"}
 
-        if not driver_data:
-            raise HTTPException(status_code=404, detail="No driver data available")
-
-        # Helper function to calculate surge multiplier
-        def calculate_surge_multiplier(demand, supply, alpha=0.5):
-            """
-            Calculate surge multiplier based on demand/supply ratio
-            M = 1 + α * ((demand/supply) - 1)
-            """
-            if supply <= 0:
-                return 1.0  # Default to no surge if no supply data
-
-            multiplier = 1 + alpha * ((demand / supply) - 1)
-            # Cap the multiplier between 1.0 and 2.5
-            multiplier = max(1.0, min(2.5, multiplier))
-            return round(multiplier, 2)
-
-        # Find the current time's forecast
-        region_col = "ward_num" if data_type == "ward" else "ac_num"
-        current_forecast = forecast_df.iloc[0]  # Use the most recent forecast
-        region_id = str(current_forecast[region_col])
-        forecast_requests = current_forecast["forecast_requests"]
-
-        # Get driver data for this region
-        if region_id not in driver_data:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No driver data available for region {region_id}",
-            )
-
-        active_drivers = driver_data[region_id]["active_drvr"]
-        available_drivers = driver_data[region_id]["drvr_notonride"]
-
-        # Calculate surge multiplier
-        active_surge = calculate_surge_multiplier(
-            forecast_requests, active_drivers, alpha
-        )
-        available_surge = calculate_surge_multiplier(
-            forecast_requests, available_drivers, alpha
-        )
-
-        # Use the higher of the two surge values for a more conservative approach
-        surge_multiplier = max(active_surge, available_surge)
-
-        # If surge is disabled, set multiplier to 1.0
-        if not surge:
-            surge_multiplier = 1.0
-
-        # Calculate final price with surge
-        total_price = subtotal * surge_multiplier
-
-        # Prepare response
-        response_data = {
-            "pricing": {
-                "base_fare": round(base_fare, 2),
-                "time_fare": round(time_fare, 2),
-                "subtotal": round(subtotal, 2),
-                "surge_multiplier": surge_multiplier,
-                "total_price": round(total_price, 2),
-            },
-            "trip_details": {
-                "distance_km": distance,
-                "duration_min": duration,
-                "region": region_id,
-                "pricing_time": current_forecast["datetime"].isoformat(),
-            },
-            "demand_supply": {
-                "forecast_requests": int(forecast_requests),
-                "active_drivers": active_drivers,
-                "available_drivers": available_drivers,
-                "demand_supply_ratio": round(
-                    forecast_requests / max(1, active_drivers), 2
-                ),
-            },
-            "pricing_constants": {
-                "minimum_price": MINIMUM_PRICE,
-                "per_km_value": PER_KM_VALUE,
-                "per_min_charge": PER_MIN_CHARGE,
-                "alpha": alpha,
-            },
-            "metadata": {
-                "data_type": data_type,
-                "generated_at": datetime.now().isoformat(),
-            },
-        }
-
-        # Save to file cache
-        save_to_file_cache(cache_key, response_data)
-
-        return response_data
-
-    except HTTPException as e:
-        raise e
     except Exception as e:
         logger.error(f"Error calculating surge pricing: {e}")
         logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"error": str(e)}
 
 
 @app.get("/api/nearby_high_demand")

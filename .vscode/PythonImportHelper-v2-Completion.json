@@ -1,5 +1,14 @@
 [
     {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
         "label": "os",
         "kind": 6,
         "isExtraImport": true,
@@ -24,15 +33,6 @@
         "importPath": "time",
         "description": "time",
         "detail": "time",
-        "documentation": {}
-    },
-    {
-        "label": "json",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "json",
-        "description": "json",
-        "detail": "json",
         "documentation": {}
     },
     {
@@ -80,6 +80,14 @@
     },
     {
         "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -369,30 +377,6 @@
         "documentation": {}
     },
     {
-        "label": "Flask",
-        "importPath": "flask",
-        "description": "flask",
-        "isExtraImport": true,
-        "detail": "flask",
-        "documentation": {}
-    },
-    {
-        "label": "jsonify",
-        "importPath": "flask",
-        "description": "flask",
-        "isExtraImport": true,
-        "detail": "flask",
-        "documentation": {}
-    },
-    {
-        "label": "request",
-        "importPath": "flask",
-        "description": "flask",
-        "isExtraImport": true,
-        "detail": "flask",
-        "documentation": {}
-    },
-    {
         "label": "load_and_preprocess_data",
         "importPath": "model",
         "description": "model",
@@ -441,28 +425,12 @@
         "documentation": {}
     },
     {
-        "label": "CORS",
-        "importPath": "flask_cors",
-        "description": "flask_cors",
-        "isExtraImport": true,
-        "detail": "flask_cors",
-        "documentation": {}
-    },
-    {
         "label": "functools",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "functools",
         "description": "functools",
         "detail": "functools",
-        "documentation": {}
-    },
-    {
-        "label": "run_simple",
-        "importPath": "werkzeug.serving",
-        "description": "werkzeug.serving",
-        "isExtraImport": true,
-        "detail": "werkzeug.serving",
         "documentation": {}
     },
     {
@@ -475,12 +443,11 @@
         "documentation": {}
     },
     {
-        "label": "concurrent.futures",
-        "kind": 6,
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
         "isExtraImport": true,
-        "importPath": "concurrent.futures",
-        "description": "concurrent.futures",
-        "detail": "concurrent.futures",
+        "detail": "fastapi",
         "documentation": {}
     },
     {
@@ -492,11 +459,11 @@
         "documentation": {}
     },
     {
-        "label": "HTTPException",
-        "importPath": "fastapi",
-        "description": "fastapi",
+        "label": "CORSMiddleware",
+        "importPath": "fastapi.middleware.cors",
+        "description": "fastapi.middleware.cors",
         "isExtraImport": true,
-        "detail": "fastapi",
+        "detail": "fastapi.middleware.cors",
         "documentation": {}
     },
     {
@@ -516,19 +483,11 @@
         "documentation": {}
     },
     {
-        "label": "BaseModel",
-        "importPath": "pydantic",
-        "description": "pydantic",
+        "label": "Request",
+        "importPath": "starlette.requests",
+        "description": "starlette.requests",
         "isExtraImport": true,
-        "detail": "pydantic",
-        "documentation": {}
-    },
-    {
-        "label": "Optional",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
+        "detail": "starlette.requests",
         "documentation": {}
     },
     {
@@ -548,6 +507,39 @@
         "documentation": {}
     },
     {
+        "label": "RideDataManager",
+        "importPath": "panda",
+        "description": "panda",
+        "isExtraImport": true,
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "RideRequestForecast",
+        "importPath": "panda",
+        "description": "panda",
+        "isExtraImport": true,
+        "detail": "panda",
+        "documentation": {}
+    },
+    {
+        "label": "run_simple",
+        "importPath": "werkzeug.serving",
+        "description": "werkzeug.serving",
+        "isExtraImport": true,
+        "detail": "werkzeug.serving",
+        "documentation": {}
+    },
+    {
+        "label": "concurrent.futures",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "concurrent.futures",
+        "description": "concurrent.futures",
+        "detail": "concurrent.futures",
+        "documentation": {}
+    },
+    {
         "label": "matplotlib.pyplot",
         "kind": 6,
         "isExtraImport": true,
@@ -557,11 +549,111 @@
         "documentation": {}
     },
     {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
-        "isExtraImport": true,
-        "detail": "pathlib",
+        "label": "_Known",
+        "kind": 6,
+        "importPath": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _Known:\n    def __init__(self):\n        self.key = []\n        self.value = []\nclass _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0",
+        "detail": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "_String",
+        "kind": 6,
+        "importPath": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0\n    for _ in value:\n        keys.append(i)\n        i += 1\n    return keys",
+        "detail": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "parse",
+        "kind": 2,
+        "importPath": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "peekOfCode": "def parse(value, *args, **kwargs):\n    json = _json.loads(value, *args, **kwargs)\n    wrapped = []\n    for value in json:\n        wrapped.append(_wrap(value))\n    input = []\n    for value in wrapped:\n        if isinstance(value, _String):\n            input.append(value.value)\n        else:",
+        "detail": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "stringify",
+        "kind": 2,
+        "importPath": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "peekOfCode": "def stringify(value, *args, **kwargs):\n    known = _Known()\n    input = []\n    output = []\n    i = int(_index(known, input, value))\n    while i < len(input):\n        output.append(_transform(known, input, input[i]))\n        i += 1\n    return _json.dumps(output, *args, **kwargs)",
+        "detail": "client.node_modules..pnpm.flat-cache@4.0.1.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "_Known",
+        "kind": 6,
+        "importPath": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _Known:\n    def __init__(self):\n        self.key = []\n        self.value = []\nclass _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0",
+        "detail": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "_String",
+        "kind": 6,
+        "importPath": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0\n    for _ in value:\n        keys.append(i)\n        i += 1\n    return keys",
+        "detail": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "parse",
+        "kind": 2,
+        "importPath": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "peekOfCode": "def parse(value, *args, **kwargs):\n    json = _json.loads(value, *args, **kwargs)\n    wrapped = []\n    for value in json:\n        wrapped.append(_wrap(value))\n    input = []\n    for value in wrapped:\n        if isinstance(value, _String):\n            input.append(value.value)\n        else:",
+        "detail": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "stringify",
+        "kind": 2,
+        "importPath": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "peekOfCode": "def stringify(value, *args, **kwargs):\n    known = _Known()\n    input = []\n    output = []\n    i = int(_index(known, input, value))\n    while i < len(input):\n        output.append(_transform(known, input, input[i]))\n        i += 1\n    return _json.dumps(output, *args, **kwargs)",
+        "detail": "client.node_modules..pnpm.flatted@3.3.3.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "_Known",
+        "kind": 6,
+        "importPath": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _Known:\n    def __init__(self):\n        self.key = []\n        self.value = []\nclass _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0",
+        "detail": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "_String",
+        "kind": 6,
+        "importPath": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0\n    for _ in value:\n        keys.append(i)\n        i += 1\n    return keys",
+        "detail": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "parse",
+        "kind": 2,
+        "importPath": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "peekOfCode": "def parse(value, *args, **kwargs):\n    json = _json.loads(value, *args, **kwargs)\n    wrapped = []\n    for value in json:\n        wrapped.append(_wrap(value))\n    input = []\n    for value in wrapped:\n        if isinstance(value, _String):\n            input.append(value.value)\n        else:",
+        "detail": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "stringify",
+        "kind": 2,
+        "importPath": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "description": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
+        "peekOfCode": "def stringify(value, *args, **kwargs):\n    known = _Known()\n    input = []\n    output = []\n    i = int(_index(known, input, value))\n    while i < len(input):\n        output.append(_transform(known, input, input[i]))\n        i += 1\n    return _json.dumps(output, *args, **kwargs)",
+        "detail": "client.node_modules..pnpm.node_modules.flatted.python.flatted",
         "documentation": {}
     },
     {
@@ -1217,7 +1309,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "data_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data",
+        "peekOfCode": "data_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\nLOGS_DIR = \"logs\"",
         "detail": "api",
         "documentation": {}
     },
@@ -1226,7 +1318,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "forecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:",
+        "peekOfCode": "forecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\nLOGS_DIR = \"logs\"\nos.makedirs(LOGS_DIR, exist_ok=True)",
         "detail": "api",
         "documentation": {}
     },
@@ -1235,7 +1327,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "forecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:\n    logger.info(\"Loading historical data and models...\")\n    data_manager.load_historical_data()",
+        "peekOfCode": "forecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\nLOGS_DIR = \"logs\"\nos.makedirs(LOGS_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:",
         "detail": "api",
         "documentation": {}
     },
@@ -1244,7 +1336,7 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "cache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:\n    logger.info(\"Loading historical data and models...\")\n    data_manager.load_historical_data()\n    logger.info(\"Fetching current data from endpoints...\")\n    fetched_data = data_manager.fetch_all_endpoints()",
+        "peekOfCode": "cache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\nLOGS_DIR = \"logs\"\nos.makedirs(LOGS_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:\n    logger.info(\"Loading historical data and models...\")\n    data_manager.load_historical_data()",
         "detail": "api",
         "documentation": {}
     },
@@ -1253,7 +1345,16 @@
         "kind": 5,
         "importPath": "api",
         "description": "api",
-        "peekOfCode": "CACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:\n    logger.info(\"Loading historical data and models...\")\n    data_manager.load_historical_data()\n    logger.info(\"Fetching current data from endpoints...\")\n    fetched_data = data_manager.fetch_all_endpoints()\n    if fetched_data:\n        logger.info(\"Successfully fetched current data\")",
+        "peekOfCode": "CACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\nLOGS_DIR = \"logs\"\nos.makedirs(LOGS_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:\n    logger.info(\"Loading historical data and models...\")\n    data_manager.load_historical_data()\n    logger.info(\"Fetching current data from endpoints...\")\n    fetched_data = data_manager.fetch_all_endpoints()",
+        "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "LOGS_DIR",
+        "kind": 5,
+        "importPath": "api",
+        "description": "api",
+        "peekOfCode": "LOGS_DIR = \"logs\"\nos.makedirs(LOGS_DIR, exist_ok=True)\n# Load historical data and models, and fetch current data\ntry:\n    logger.info(\"Loading historical data and models...\")\n    data_manager.load_historical_data()\n    logger.info(\"Fetching current data from endpoints...\")\n    fetched_data = data_manager.fetch_all_endpoints()\n    if fetched_data:\n        logger.info(\"Successfully fetched current data\")",
         "detail": "api",
         "documentation": {}
     },
@@ -1282,6 +1383,141 @@
         "description": "api",
         "peekOfCode": "PER_MIN_CHARGE = 1.5  # ₹1.5 per minute in traffic\n# Cache decorator with timeout\ndef timed_cache(timeout_seconds=300):\n    def decorator(func):\n        cache = {}\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            key = str(args) + str(kwargs)\n            current_time = datetime.now()\n            with cache_lock:",
         "detail": "api",
+        "documentation": {}
+    },
+    {
+        "label": "parse_iso_date",
+        "kind": 2,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "def parse_iso_date(date_string):\n    \"\"\"Parse ISO format dates with Z timezone indicator\"\"\"\n    if date_string.endswith('Z'):\n        date_string = date_string[:-1] + '+00:00'\n    return datetime.fromisoformat(date_string)\n# Cache decorator with timeout\ndef timed_cache(timeout_seconds=300):\n    def decorator(func):\n        cache = {}\n        @functools.wraps(func)",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "timed_cache",
+        "kind": 2,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "def timed_cache(timeout_seconds=300):\n    def decorator(func):\n        cache = {}\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            key = str(args) + str(kwargs)\n            current_time = datetime.now()\n            with cache_lock:\n                # Check if result is in cache and not expired\n                if key in cache:",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "get_cache_file_path",
+        "kind": 2,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "def get_cache_file_path(cache_key):\n    \"\"\"Generate a sanitized file path for the cache key\"\"\"\n    # Replace characters that aren't valid in filenames\n    safe_key = re.sub(r\"[^\\w\\-_]\", \"_\", cache_key)\n    return os.path.join(CACHE_DIR, f\"{safe_key}.json\")\ndef load_from_file_cache(cache_key, max_age_seconds=1800):\n    \"\"\"Load data from file cache if it exists and is not expired\"\"\"\n    file_path = get_cache_file_path(cache_key)\n    if os.path.exists(file_path):\n        try:",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "load_from_file_cache",
+        "kind": 2,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "def load_from_file_cache(cache_key, max_age_seconds=1800):\n    \"\"\"Load data from file cache if it exists and is not expired\"\"\"\n    file_path = get_cache_file_path(cache_key)\n    if os.path.exists(file_path):\n        try:\n            with open(file_path, \"r\") as f:\n                cache_data = json.load(f)\n            # Check if the cache is still valid\n            cache_time = datetime.fromisoformat(\n                cache_data.get(\"cached_at\", \"2000-01-01T00:00:00\")",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "save_to_file_cache",
+        "kind": 2,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "def save_to_file_cache(cache_key, data):\n    \"\"\"Save data to file cache\"\"\"\n    file_path = get_cache_file_path(cache_key)\n    try:\n        cache_entry = {\n            \"data\": data,\n            \"cached_at\": datetime.now().isoformat(),\n            \"key\": cache_key,\n        }\n        with open(file_path, \"w\") as f:",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "logger = logging.getLogger(\"forecast_api\")\napp = FastAPI()\n# Enable CORS\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],\n    allow_credentials=True,\n    allow_methods=[\"GET\", \"POST\"],\n    allow_headers=[\"*\"],\n)",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "app = FastAPI()\n# Enable CORS\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],\n    allow_credentials=True,\n    allow_methods=[\"GET\", \"POST\"],\n    allow_headers=[\"*\"],\n)\n# Initialize data manager and forecaster",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "data_manager",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "data_manager = RideDataManager()\nforecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "forecaster",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "forecaster = RideRequestForecast(data_manager)\n# Cache for forecast results\nforecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "forecast_cache",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "forecast_cache = {}\n# Lock for thread safety\ncache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "cache_lock",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "cache_lock = threading.Lock()\n# Ensure cache directory exists\nCACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "CACHE_DIR",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "CACHE_DIR = \"cache/forecasts\"\nos.makedirs(CACHE_DIR, exist_ok=True)\n# Load historical data and models\ntry:\n    data_manager.load_historical_data()\n    forecaster.load_model(\"ward\")\n    logger.info(\"Historical data and models loaded successfully\")\nexcept Exception as e:\n    logger.error(f\"Error loading data or models: {e}\")\n    logger.error(traceback.format_exc())",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "MINIMUM_PRICE",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "MINIMUM_PRICE = 30  # ₹30 minimum starting fare\nPER_KM_VALUE = 15  # ₹15 per kilometer\nPER_MIN_CHARGE = 1.5  # ₹1.5 per minute in traffic\ndef parse_iso_date(date_string):\n    \"\"\"Parse ISO format dates with Z timezone indicator\"\"\"\n    if date_string.endswith('Z'):\n        date_string = date_string[:-1] + '+00:00'\n    return datetime.fromisoformat(date_string)\n# Cache decorator with timeout\ndef timed_cache(timeout_seconds=300):",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "PER_KM_VALUE",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "PER_KM_VALUE = 15  # ₹15 per kilometer\nPER_MIN_CHARGE = 1.5  # ₹1.5 per minute in traffic\ndef parse_iso_date(date_string):\n    \"\"\"Parse ISO format dates with Z timezone indicator\"\"\"\n    if date_string.endswith('Z'):\n        date_string = date_string[:-1] + '+00:00'\n    return datetime.fromisoformat(date_string)\n# Cache decorator with timeout\ndef timed_cache(timeout_seconds=300):\n    def decorator(func):",
+        "detail": "meh",
+        "documentation": {}
+    },
+    {
+        "label": "PER_MIN_CHARGE",
+        "kind": 5,
+        "importPath": "meh",
+        "description": "meh",
+        "peekOfCode": "PER_MIN_CHARGE = 1.5  # ₹1.5 per minute in traffic\ndef parse_iso_date(date_string):\n    \"\"\"Parse ISO format dates with Z timezone indicator\"\"\"\n    if date_string.endswith('Z'):\n        date_string = date_string[:-1] + '+00:00'\n    return datetime.fromisoformat(date_string)\n# Cache decorator with timeout\ndef timed_cache(timeout_seconds=300):\n    def decorator(func):\n        cache = {}",
+        "detail": "meh",
         "documentation": {}
     },
     {

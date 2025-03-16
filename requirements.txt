@@ -8,3 +8,4 @@ requests==2.31.0
 matplotlib
 fastapi
 uvicorn
+starlette==0.46.1

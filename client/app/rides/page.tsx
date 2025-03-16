@@ -1,9 +1,41 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+
+interface DemandArea {
+  ward: string;
+  distance: number;
+  avg_demand: number;
+  active_drivers: number;
+  available_drivers: number;
+  demand_supply_ratio: number;
+  score: number;
+}
+
+interface NearbyDemandResponse {
+  current_ward: string;
+  recommendations: DemandArea[];
+  metadata: {
+    max_distance: number;
+    hours_ahead: number;
+    generated_at: string;
+    processed_wards: number;
+    skipped_wards: number;
+  };
+}
 
 const Rides = () => {
   const [showSurgeDetails, setShowSurgeDetails] = useState(false);
+  const [currentWard, setCurrentWard] = useState("101");
+  const [maxDistance, setMaxDistance] = useState(5);
+  const [hoursAhead, setHoursAhead] = useState(3);
+  const [loading, setLoading] = useState(false);
+  const [demandData, setDemandData] = useState<NearbyDemandResponse | null>(
+    null
+  );
+  const [error, setError] = useState<string | null>(null);
 
   const todayRides = [
     {
@@ -39,6 +71,31 @@ const Rides = () => {
       status: "Completed",
     },
   ];
+
+  const fetchDemandData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(
+        `http://localhost:8888/api/nearby_high_demand?ward=${currentWard}&max_distance=${maxDistance}&hours=${hoursAhead}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch demand data");
+      }
+      const data = await response.json();
+      setDemandData(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showSurgeDetails) {
+      fetchDemandData();
+    }
+  }, [showSurgeDetails]);
 
   return (
     <div className="h-full overflow-y-auto">
@@ -149,7 +206,9 @@ const Rides = () => {
 
             <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Avg. Ride Distance</span>
+                <span className="text-sm text-gray-400">
+                  Avg. Ride Distance
+                </span>
                 <span className="text-xs px-2 py-1 bg-gray-700 rounded-full text-yellow-400">
                   This Week
                 </span>
@@ -225,15 +284,18 @@ const Rides = () => {
                           <span className="font-semibold text-yellow-400">
                             10 rides
                           </span>{" "}
-                          during surge hours to earn priority access for intercity trips, 
-                          rentals, and premium ride services! You&apos;ve completed 3 rides so far.
+                          during surge hours to earn priority access for
+                          intercity trips, rentals, and premium ride services!
+                          You&apos;ve completed 3 rides so far.
                         </p>
                       </div>
                       <Button
                         onClick={() => setShowSurgeDetails(!showSurgeDetails)}
                         className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 self-start text-sm py-1 h-8"
                       >
-                        {showSurgeDetails ? "Hide Details" : "View Surge Map"}
+                        {showSurgeDetails
+                          ? "Hide Details"
+                          : "View Surge Details"}
                       </Button>
                     </div>
                   </div>
@@ -242,35 +304,146 @@ const Rides = () => {
                     <div className="p-4 bg-gray-800 border-t border-gray-700">
                       <div className="mb-4">
                         <h4 className="text-base font-semibold text-white mb-2">
-                          Current Surge Areas
+                          Nearby High Demand Areas
                         </h4>
                         <p className="text-gray-300 text-sm mb-3">
-                          Complete rides in surge pricing areas to earn your priority pass faster. 
-                          Rides in higher surge areas count as multiple rides toward your goal.
+                          Complete rides in high demand areas to earn your
+                          priority pass faster. Higher demand areas may have
+                          surge pricing and count as multiple rides toward your
+                          goal.
                         </p>
 
-                        <div className="bg-gray-900 rounded-lg p-4 h-56 relative">
-                          {/* This would be replaced with an actual map component in production */}
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-center text-gray-400">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-10 w-10 mx-auto mb-2 text-gray-600"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                                />
-                              </svg>
-                              <p>Surge Map Visualization</p>
+                        {/* Parameters Form */}
+                        <div className="bg-gray-900 rounded-lg p-4 mb-4 border border-gray-700">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-300 mb-1">
+                                Current Ward
+                              </label>
+                              <Input
+                                type="text"
+                                value={currentWard}
+                                onChange={(e) => setCurrentWard(e.target.value)}
+                                className="bg-gray-800 border-gray-700 text-gray-200"
+                                placeholder="Enter ward number"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-300 mb-1">
+                                Max Distance: {maxDistance} km
+                              </label>
+                              <Slider
+                                value={[maxDistance]}
+                                onValueChange={(value) =>
+                                  setMaxDistance(value[0])
+                                }
+                                min={1}
+                                max={10}
+                                step={1}
+                                className="py-2"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-300 mb-1">
+                                Hours Ahead: {hoursAhead}h
+                              </label>
+                              <Slider
+                                value={[hoursAhead]}
+                                onValueChange={(value) =>
+                                  setHoursAhead(value[0])
+                                }
+                                min={1}
+                                max={6}
+                                step={1}
+                                className="py-2"
+                              />
                             </div>
                           </div>
+                          <div className="mt-4 flex justify-end">
+                            <Button
+                              onClick={fetchDemandData}
+                              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900"
+                              disabled={loading}
+                            >
+                              {loading ? "Loading..." : "Update Demand Data"}
+                            </Button>
+                          </div>
                         </div>
+
+                        {/* Error Message */}
+                        {error && (
+                          <div className="bg-red-900/20 border border-red-700 text-red-400 p-3 rounded-lg mb-4">
+                            {error}
+                          </div>
+                        )}
+
+                        {/* Demand Area Cards */}
+                        {demandData && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {demandData.recommendations.map((area) => (
+                              <div
+                                key={area.ward}
+                                className="bg-gray-900 rounded-lg p-3 border border-gray-700"
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <h5 className="text-white font-medium">
+                                      Ward {area.ward}
+                                    </h5>
+                                    <p className="text-xs text-gray-400">
+                                      {area.distance === 0
+                                        ? "Current Location"
+                                        : `${area.distance} km away`}
+                                    </p>
+                                  </div>
+                                  <span className="px-2 py-0.5 bg-yellow-400/20 text-yellow-400 text-xs rounded-full">
+                                    {area.demand_supply_ratio.toFixed(2)}x
+                                    Demand
+                                  </span>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex justify-between text-xs">
+                                    <span className="text-gray-400">
+                                      Average Demand:
+                                    </span>
+                                    <span className="text-gray-300">
+                                      {area.avg_demand.toFixed(0)} rides/hour
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between text-xs">
+                                    <span className="text-gray-400">
+                                      Active Drivers:
+                                    </span>
+                                    <span className="text-gray-300">
+                                      {area.active_drivers} drivers
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between text-xs">
+                                    <span className="text-gray-400">
+                                      Available:
+                                    </span>
+                                    <span className="text-green-400">
+                                      {area.available_drivers} drivers
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {!demandData && !error && !loading && (
+                          <div className="text-center text-gray-400 py-8">
+                            No demand data available. Click "Update Demand Data"
+                            to fetch information.
+                          </div>
+                        )}
+
+                        {loading && (
+                          <div className="text-center text-gray-400 py-8">
+                            Loading demand data...
+                          </div>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-3 gap-2 mb-2">
@@ -295,29 +468,67 @@ const Rides = () => {
                       </div>
 
                       <div className="bg-gray-900 p-3 rounded-lg mt-3">
-                        <h5 className="text-sm font-semibold text-white mb-2">Priority Pass Benefits:</h5>
+                        <h5 className="text-sm font-semibold text-white mb-2">
+                          Priority Pass Benefits:
+                        </h5>
                         <ul className="text-xs text-gray-300 space-y-1">
                           <li className="flex items-start">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 text-yellow-400 mr-1 flex-shrink-0 mt-0.5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                             Priority matching for intercity rides
                           </li>
                           <li className="flex items-start">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 text-yellow-400 mr-1 flex-shrink-0 mt-0.5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                             Discounted rental booking fees
                           </li>
                           <li className="flex items-start">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 text-yellow-400 mr-1 flex-shrink-0 mt-0.5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                             Premium ride service access
                           </li>
                           <li className="flex items-start">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-400 mr-1 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 text-yellow-400 mr-1 flex-shrink-0 mt-0.5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                             Exclusive promotions and discounts
                           </li>
@@ -340,25 +551,33 @@ const Rides = () => {
               {/* Progress toward Priority Pass */}
               <section className="mb-6">
                 <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-                  <h3 className="text-base font-semibold text-white mb-3">Your Progress</h3>
+                  <h3 className="text-base font-semibold text-white mb-3">
+                    Your Progress
+                  </h3>
                   <div className="mb-3">
                     <div className="flex justify-between text-xs text-gray-400 mb-1">
                       <span>0 rides</span>
                       <span>10 rides</span>
                     </div>
                     <div className="h-3 bg-gray-700 rounded-full">
-                      <div 
-                        className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full" 
+                      <div
+                        className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full"
                         style={{ width: "30%" }}
                       ></div>
                     </div>
                   </div>
                   <p className="text-sm text-gray-300">
-                    <span className="text-yellow-400 font-semibold">3 rides completed</span> toward 
-                    your Priority Pass. Complete 7 more rides during surge hours to unlock benefits.
+                    <span className="text-yellow-400 font-semibold">
+                      3 rides completed
+                    </span>{" "}
+                    toward your Priority Pass. Complete 7 more rides during
+                    surge hours to unlock benefits.
                   </p>
                   <div className="mt-3 text-xs text-gray-400">
-                    <p>Your progress resets in: <span className="text-white">6 days 23 hours</span></p>
+                    <p>
+                      Your progress resets in:{" "}
+                      <span className="text-white">6 days 23 hours</span>
+                    </p>
                   </div>
                 </div>
               </section>
@@ -520,7 +739,9 @@ const Rides = () => {
                           d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
                         />
                       </svg>
-                      <span className="text-xs text-gray-300">Saved Places</span>
+                      <span className="text-xs text-gray-300">
+                        Saved Places
+                      </span>
                     </button>
                     <button className="bg-gray-900 hover:bg-gray-700 p-3 rounded-lg flex flex-col items-center justify-center transition-colors border border-gray-700">
                       <svg

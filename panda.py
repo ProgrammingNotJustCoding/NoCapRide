@@ -11,7 +11,6 @@ import schedule
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
 import pickle
-from pathlib import Path
 
 # Set up logging
 logging.basicConfig(

@@ -2,6 +2,8 @@
 
 A modern ride-hailing platform with intelligent demand forecasting and surge balancing.
 
+### [Demo Video](https://youtu.be/bLbfNtwy3UA)
+
 ## Project Structure
 ```
 NoCapRide/

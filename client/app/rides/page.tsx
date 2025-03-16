@@ -3,6 +3,15 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 interface DemandArea {
   ward: string;
@@ -897,41 +906,89 @@ const Rides = () => {
                                   <h5 className="text-sm font-semibold text-white mb-3">
                                     24-Hour Demand Forecast
                                   </h5>
-                                  <div className="h-48 relative">
-                                    {/* Simple bar graph visualization */}
-                                    <div className="flex items-end h-40 space-x-1">
-                                      {forecastData.forecast.map(
-                                        (hour, index) => {
-                                          const height =
-                                            (hour.forecast_requests / 100) *
-                                            100;
-                                          return (
-                                            <div
-                                              key={index}
-                                              className="flex-1 bg-yellow-400/20 hover:bg-yellow-400/30 transition-all rounded-t"
-                                              style={{
-                                                height: `${Math.min(
-                                                  100,
-                                                  height
-                                                )}%`,
-                                              }}
-                                              title={`${new Date(
+                                  <div className="h-64">
+                                    <ResponsiveContainer
+                                      width="100%"
+                                      height="100%"
+                                    >
+                                      <LineChart
+                                        data={forecastData.forecast.map(
+                                          (hour) => ({
+                                            time:
+                                              new Date(
                                                 hour.datetime
-                                              ).getHours()}:00 - ${
-                                                hour.forecast_requests
-                                              } rides`}
-                                            ></div>
-                                          );
-                                        }
-                                      )}
-                                    </div>
-                                    <div className="flex justify-between text-xs text-gray-400 mt-2">
-                                      <span>Now</span>
-                                      <span>6h</span>
-                                      <span>12h</span>
-                                      <span>18h</span>
-                                      <span>24h</span>
-                                    </div>
+                                              ).getHours() + ":00",
+                                            demand: hour.forecast_requests,
+                                            datetime: hour.datetime,
+                                          })
+                                        )}
+                                        margin={{
+                                          top: 5,
+                                          right: 5,
+                                          left: 0,
+                                          bottom: 5,
+                                        }}
+                                      >
+                                        <CartesianGrid
+                                          strokeDasharray="3 3"
+                                          stroke="#374151"
+                                        />
+                                        <XAxis
+                                          dataKey="time"
+                                          stroke="#9CA3AF"
+                                          tick={{ fill: "#9CA3AF" }}
+                                          tickLine={{ stroke: "#4B5563" }}
+                                        />
+                                        <YAxis
+                                          stroke="#9CA3AF"
+                                          tick={{ fill: "#9CA3AF" }}
+                                          tickLine={{ stroke: "#4B5563" }}
+                                          label={{
+                                            value: "Expected Rides",
+                                            angle: -90,
+                                            position: "insideLeft",
+                                            fill: "#9CA3AF",
+                                          }}
+                                        />
+                                        <Tooltip
+                                          contentStyle={{
+                                            backgroundColor: "#1F2937",
+                                            border: "1px solid #374151",
+                                            borderRadius: "0.375rem",
+                                            color: "#E5E7EB",
+                                          }}
+                                          labelStyle={{ color: "#9CA3AF" }}
+                                          formatter={(value) => [
+                                            `${value} rides`,
+                                            "Expected Demand",
+                                          ]}
+                                          labelFormatter={(label) =>
+                                            `Time: ${label}`
+                                          }
+                                        />
+                                        <Line
+                                          type="monotone"
+                                          dataKey="demand"
+                                          stroke="#FBBF24"
+                                          strokeWidth={2}
+                                          dot={{
+                                            fill: "#FBBF24",
+                                            stroke: "#FBBF24",
+                                            r: 4,
+                                          }}
+                                          activeDot={{
+                                            fill: "#FBBF24",
+                                            stroke: "#F59E0B",
+                                            r: 6,
+                                            strokeWidth: 2,
+                                          }}
+                                        />
+                                      </LineChart>
+                                    </ResponsiveContainer>
+                                  </div>
+                                  <div className="mt-3 text-xs text-gray-400 text-center">
+                                    Hover over points to see detailed demand
+                                    predictions
                                   </div>
                                 </div>
                               ) : (

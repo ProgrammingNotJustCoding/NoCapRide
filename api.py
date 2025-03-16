@@ -14,6 +14,9 @@ from werkzeug.serving import run_simple
 import re
 import concurrent.futures
 import time
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.requests import Request
 
 # Import from the existing forecasting module
 from panda import RideDataManager, RideRequestForecast
@@ -30,8 +33,16 @@ logging.basicConfig(
 logger = logging.getLogger("forecast_api")
 
 # Create Flask app
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+app = FastAPI()
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 # Initialize data manager and forecaster
 data_manager = RideDataManager()
@@ -683,27 +694,32 @@ def get_all_forecasts():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/demand_forecast_ratio", methods=["GET"])
-def get_demand_forecast_ratio():
-    """
+@app.post ("/api/demand_forecast_ratio")
+async def get_demand_forecast_ratio(req: Request):
+    """ 
     Get the ratio between forecasted demand and active drivers.
     This helps evaluate the supply-demand balance for each region.
     """
     try:
         # Get query parameters
-        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
-        hours = int(request.args.get("hours", "24"))
-        region = request.args.get("region")
-        force_refresh = request.args.get("refresh", "false").lower() == "true"
+        
+        body =  await req.json()
+        data_type = body.get("type", "ward")  # 'ward' or 'ca'
+        hours = int(body.get("hours", "24"))
+        region = body.get("region")
+        force_refresh = body.get("refresh", "false").lower() == "true"
+        
+        print("request_args: ", body)
 
         # Create cache key
-        cache_key = f"demand_driver_ratio_{data_type}_{hours}_{region}"
+        cache_key = f"demand_driver_ratio_{data_type}_{hours}"
+        print("cache_key: ", cache_key)
 
         # Check file cache if not forcing refresh
         if not force_refresh:
             file_cache_data = load_from_file_cache(cache_key)
             if file_cache_data:
-                return jsonify(file_cache_data)
+                return file_cache_data.get("data").get("hourly_ratios").get(region)
 
         # Load the active driver data from the JSON file
         driver_data = {}
@@ -1093,21 +1109,22 @@ def get_surge_multiplier():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/surge_pricing", methods=["GET"])
-def get_surge_pricing():
+@app.post("/api/surge_pricing")
+async def get_surge_pricing(req: Request):
     """
     Calculate the final price with surge for a given trip.
     """
     try:
         # Get query parameters
-        data_type = request.args.get("type", "ward")  # 'ward' or 'ca'
-        region = request.args.get("region")
-        distance = float(request.args.get("distance", "5.0"))  # Trip distance in km
+        body = await req.json()
+        data_type = body.get("type", "ward")  # 'ward' or 'ca'
+        region = body.get("region")
+        distance = float(body.get("distance", "5.0"))  # Trip distance in km
         duration = float(
-            request.args.get("duration", "20.0")
+            body.get("duration", "20.0")
         )  # Trip duration in minutes
-        alpha = float(request.args.get("alpha", "0.5"))  # Surge sensitivity parameter
-        current_time = request.args.get("time")  # Optional specific time for pricing
+        alpha = float(body.get("alpha", "0.5"))  # Surge sensitivity parameter
+        current_time = body.get("time")  # Optional specific time for pricing
 
         # If no specific time provided, use current time
         if not current_time:
@@ -1290,7 +1307,7 @@ def get_surge_pricing():
 
 if __name__ == "__main__":
     # Ensure necessary directories exist
+    import uvicorn
     os.makedirs("logs", exist_ok=True)
 
-    # Run the Flask app
-    app.run(host="0.0.0.0", port=8888, debug=True, threaded=True)
+    uvicorn.run(app, host="127.0.0.1", port=8888)

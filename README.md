@@ -1,142 +1,99 @@
-# NoCapRide Forecasting System
+# NoCapRide - Team Saadhana (N-07) - TGBH'25
 
-This project provides a ride request forecasting system with a Flask API backend and a Next.js frontend.
+A modern ride-hailing platform with intelligent demand forecasting and surge balancing.
 
-## Components
-
-1. **Forecasting Engine** (`panda.py`): Core forecasting functionality that fetches data, trains models, and generates forecasts.
-2. **Flask API** (`api.py`): RESTful API that serves forecast data to the frontend.
-3. **Next.js Frontend** (`nextjs-example/`): Web interface for visualizing historical and forecast data.
-
-## Setup
-
-### Prerequisites
-
-- Python 3.8 or higher
-- Node.js 14.x or higher (for frontend)
-- npm or yarn (for frontend)
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/NoCapRide.git
-cd NoCapRide
+## Project Structure
+```
+NoCapRide/
+├── api.py                  # Flask API for backend services
+├── panda.py               # ML-powered forecasting engine
+├── requirements.txt       # Python dependencies
+├── client/               # Next.js frontend application
+│   ├── app/              # App router components
+│   │   ├── rides/       # Ride management interface
+│   │   └── components/  # Reusable UI components
+│   └── package.json     # Frontend dependencies
+├── static-data/         # Static data files and resources
+├── logs/               # Application logs
+└── prev-model-attempt/ # Previous ML model iterations
 ```
 
-2. Install Python dependencies:
-```bash
-pip install -r requirements.txt
-```
+## Features
 
-3. Run the setup script to create necessary directories:
-```bash
-mkdir -p logs data/models data/historical data/forecasts data/visualizations
-```
+### For Riders
+- Real-time ride booking and tracking
+- Transparent surge pricing information
+- Scheduled rides
+- Saved locations
+- Payment method management
+- Ride history and statistics
 
-### Running the System
+### For Drivers
+- Intelligent demand forecasting
+- Surge pricing program with priority benefits
+- Real-time earnings tracking
+- Best times to drive recommendations
+- Area-wise demand visualization
+- Driver insights dashboard
 
-You can run both the API and frontend using the provided script:
+### Technical Features
+- ML-powered demand prediction
+- Dynamic surge pricing algorithm
+- Real-time data processing
+- Interactive data visualizations
+- RESTful API architecture
+- Modern React/Next.js frontend
+- Responsive dark mode UI
 
-```bash
-./run.sh
-```
+## Setup Instructions
 
-Or run them separately:
+### Backend Setup
+1. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-1. Start the Flask API:
-```bash
-python api.py
-```
-The API will be available at http://localhost:8888.
+2. Start the Flask API:
+   ```bash
+   python api.py
+   ```
 
-2. Start the Next.js frontend:
-```bash
-cd nextjs-example
-npm install
-npm run dev
-```
-The frontend will be available at http://localhost:3000.
+### Frontend Setup
+1. Navigate to the client directory:
+   ```bash
+   cd client
+   ```
+
+2. Install Node.js dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
 ## API Endpoints
 
-The Flask API provides the following endpoints:
+### Demand Forecasting
+- `GET /api/forecast` - Get demand forecast for specified region
+- `GET /api/nearby-demand` - Get demand in nearby areas
+- `GET /api/surge-price` - Calculate surge pricing
 
-- `GET /api/health`: Health check endpoint
-- `GET /api/forecast`: Get forecast data
-- `GET /api/regions`: Get available regions
-- `GET /api/historical`: Get historical data
-- `GET /api/model/info`: Get model information
-- `POST /api/retrain`: Retrain the model
-- `POST /api/cache/clear`: Clear the API cache
+### Ride Management
+- `POST /api/rides` - Create new ride
+- `GET /api/rides` - Get ride history
+- `GET /api/rides/:id` - Get specific ride details
 
-See the API documentation in `api.py` for more details.
+## Contributing
 
-## Frontend
-
-The Next.js frontend provides an interactive dashboard for visualizing historical and forecast data. It includes:
-
-- Time-series charts for historical and forecast data
-- Filtering by region and data type
-- Adjustable forecast time horizon
-
-## Data Flow
-
-1. The forecasting engine fetches data from external sources
-2. The data is processed and used to train a Random Forest model
-3. The model generates forecasts for future ride requests
-4. The Flask API serves this data to the frontend
-5. The Next.js frontend visualizes the data for users
-
-## Directory Structure
-
-```
-NoCapRide/
-├── api.py                  # Flask API
-├── panda.py                # Forecasting engine
-├── requirements.txt        # Python dependencies
-├── run.sh                  # Script to run both API and frontend
-├── data/                   # Data directory
-│   ├── models/             # Trained models
-│   ├── historical/         # Historical data
-│   ├── forecasts/          # Generated forecasts
-│   └── visualizations/     # Visualization outputs
-├── logs/                   # Log files
-└── nextjs-example/         # Next.js frontend
-    ├── ForecastComponent.jsx  # Main forecast component
-    ├── pages/              # Next.js pages
-    └── package.json        # Frontend dependencies
-```
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-See the LICENSE file for details.
-
-## Performance Considerations
-
-### Forecast Generation
-
-Generating forecasts can be computationally intensive, especially for longer time horizons or multiple regions. The system includes several optimizations to improve performance:
-
-1. **Caching**: Forecast results are cached for 30 minutes to avoid redundant calculations
-2. **Reduced Estimators**: For faster responses, the number of estimators is temporarily reduced during forecast generation
-3. **Timeout Handling**: The frontend includes proper timeout handling and progress indicators
-
-### Handling Timeouts
-
-If you experience forecast timeouts:
-
-1. Try reducing the forecast hours (e.g., use 12 hours instead of 72)
-2. Use the "Clear Cache" button if you need to regenerate forecasts
-3. The first forecast request after starting the server may take longer (up to 60 seconds)
-4. Check the API logs for any errors or performance issues
-
-### Testing the API
-
-You can test the API using the included test script:
-
-```bash
-python test_api.py
-```
-
-This script will verify that all endpoints are working correctly and will test the caching mechanism. 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

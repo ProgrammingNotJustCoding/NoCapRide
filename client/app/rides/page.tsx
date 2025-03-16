@@ -26,6 +26,56 @@ interface NearbyDemandResponse {
   };
 }
 
+interface SurgePricing {
+  pricing: {
+    base_fare: number;
+    time_fare: number;
+    subtotal: number;
+    surge_multiplier: number;
+    total_price: number;
+  };
+  trip_details: {
+    distance_km: number;
+    duration_min: number;
+    region: string;
+    pricing_time: string;
+  };
+  demand_supply: {
+    forecast_requests: number;
+    active_drivers: number;
+    available_drivers: number;
+    demand_supply_ratio: number;
+  };
+  pricing_constants: {
+    minimum_price: number;
+    per_km_value: number;
+    per_min_charge: number;
+    alpha: number;
+  };
+}
+
+interface ForecastData {
+  datetime: string;
+  forecast_requests: number;
+}
+
+interface ForecastResponse {
+  forecast: ForecastData[];
+  metadata: {
+    data_type: string;
+    hours: number;
+    region: string;
+    generated_at: string;
+  };
+}
+
+const formatPrice = (price: number | undefined) => {
+  if (typeof price === "number") {
+    return `₹${price.toFixed(2)}`;
+  }
+  return "₹0.00";
+};
+
 const Rides = () => {
   const [showSurgeDetails, setShowSurgeDetails] = useState(false);
   const [currentWard, setCurrentWard] = useState("101");
@@ -36,6 +86,25 @@ const Rides = () => {
     null
   );
   const [error, setError] = useState<string | null>(null);
+  const [distance, setDistance] = useState(5);
+  const [duration, setDuration] = useState(20);
+  const [surgePricing, setSurgePricing] = useState<SurgePricing | null>(null);
+  const [showSurgeCalculator, setShowSurgeCalculator] = useState(false);
+  const [forecastData, setForecastData] = useState<ForecastResponse | null>(
+    null
+  );
+  const [showForecast, setShowForecast] = useState(false);
+  const [bestTimes, setBestTimes] = useState<
+    { hour: number; demand: number }[]
+  >([]);
+  const [potentialEarnings, setPotentialEarnings] = useState<
+    {
+      hourRange: string;
+      minEarnings: number;
+      maxEarnings: number;
+      confidence: string;
+    }[]
+  >([]);
 
   const todayRides = [
     {
@@ -77,7 +146,9 @@ const Rides = () => {
       setLoading(true);
       setError(null);
       const response = await fetch(
-        `http://localhost:8888/api/nearby_high_demand?ward=${currentWard}&max_distance=${maxDistance}&hours=${hoursAhead}`
+        `http://localhost:8888/api/nearby_high_demand?ward=${
+          currentWard || "101"
+        }&max_distance=${maxDistance || 5}&hours=${hoursAhead || 3}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch demand data");
@@ -91,11 +162,137 @@ const Rides = () => {
     }
   };
 
+  const calculateSurgePrice = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("http://localhost:8888/api/surge_pricing", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "ward",
+          region: currentWard || "101",
+          distance: distance || 5,
+          duration: duration || 20,
+          alpha: 0.5,
+          surge: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to calculate surge price");
+      }
+
+      const data = await response.json();
+      setSurgePricing(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to calculate price"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchForecastData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(
+        `http://localhost:8888/api/forecast?data_type=ward&hours=24&region=${
+          currentWard || "101"
+        }`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch forecast data");
+      }
+      const data = await response.json();
+      setForecastData(data);
+
+      if (
+        data?.forecast &&
+        Array.isArray(data.forecast) &&
+        data.forecast.length > 0
+      ) {
+        // Calculate best times to drive
+        const hourlyDemand = data.forecast.map((f: ForecastData) => ({
+          hour: new Date(f.datetime).getHours(),
+          demand: f.forecast_requests || 0,
+        }));
+
+        // Sort by demand and get top 3 hours
+        const topHours = [...hourlyDemand]
+          .sort((a, b) => b.demand - a.demand)
+          .slice(0, 3);
+        setBestTimes(topHours);
+
+        // Calculate potential earnings for different time slots
+        const timeSlots = [
+          { start: 6, end: 10, label: "Morning Rush" },
+          { start: 12, end: 14, label: "Lunch Hours" },
+          { start: 17, end: 21, label: "Evening Rush" },
+          { start: 22, end: 5, label: "Night Shift" },
+        ];
+
+        const earnings = timeSlots.map((slot) => {
+          const slotForecasts = hourlyDemand.filter(
+            (h: { hour: number; demand: number }) =>
+              slot.start <= h.hour && h.hour <= slot.end
+          );
+
+          const avgDemand =
+            slotForecasts.length > 0
+              ? slotForecasts.reduce(
+                  (sum: number, f: { hour: number; demand: number }) =>
+                    sum + (f.demand || 0),
+                  0
+                ) / slotForecasts.length
+              : 0;
+
+          const baseEarnings = avgDemand * 150; // Assuming average ride fare of ₹150
+
+          return {
+            hourRange: `${slot.label} (${slot.start}:00 - ${slot.end}:00)`,
+            minEarnings: Math.round(baseEarnings * 0.8),
+            maxEarnings: Math.round(baseEarnings * 1.2),
+            confidence:
+              avgDemand > 50 ? "High" : avgDemand > 30 ? "Medium" : "Low",
+          };
+        });
+
+        setPotentialEarnings(earnings);
+      } else {
+        setBestTimes([]);
+        setPotentialEarnings([]);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch forecast");
+      setBestTimes([]);
+      setPotentialEarnings([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (showSurgeDetails) {
       fetchDemandData();
     }
-  }, [showSurgeDetails]);
+  }, [showSurgeDetails, currentWard, maxDistance, hoursAhead]);
+
+  useEffect(() => {
+    if (showSurgeCalculator && currentWard) {
+      calculateSurgePrice();
+    }
+  }, [showSurgeCalculator, currentWard, distance, duration]);
+
+  useEffect(() => {
+    if (showForecast && currentWard) {
+      fetchForecastData();
+    }
+  }, [showForecast, currentWard]);
 
   return (
     <div className="h-full overflow-y-auto">
@@ -378,7 +575,9 @@ const Rides = () => {
                         )}
 
                         {/* Demand Area Cards */}
-                        {demandData && (
+                        {demandData &&
+                        demandData.recommendations &&
+                        demandData.recommendations.length > 0 ? (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {demandData.recommendations.map((area) => (
                               <div
@@ -430,9 +629,7 @@ const Rides = () => {
                               </div>
                             ))}
                           </div>
-                        )}
-
-                        {!demandData && !error && !loading && (
+                        ) : (
                           <div className="text-center text-gray-400 py-8">
                             No demand data available. Click "Update Demand Data"
                             to fetch information.
@@ -444,6 +641,354 @@ const Rides = () => {
                             Loading demand data...
                           </div>
                         )}
+
+                        {/* Surge Price Calculator */}
+                        <div className="mt-8">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-base font-semibold text-white">
+                              Surge Price Calculator
+                            </h4>
+                            <Button
+                              onClick={() =>
+                                setShowSurgeCalculator(!showSurgeCalculator)
+                              }
+                              className="text-xs bg-transparent hover:bg-gray-700 text-yellow-400 border border-yellow-400"
+                            >
+                              {showSurgeCalculator
+                                ? "Hide Calculator"
+                                : "Show Calculator"}
+                            </Button>
+                          </div>
+
+                          {showSurgeCalculator && (
+                            <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                                    Distance: {distance} km
+                                  </label>
+                                  <Slider
+                                    value={[distance]}
+                                    onValueChange={(value) =>
+                                      setDistance(value[0])
+                                    }
+                                    min={1}
+                                    max={50}
+                                    step={0.5}
+                                    className="py-2"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                                    Duration: {duration} min
+                                  </label>
+                                  <Slider
+                                    value={[duration]}
+                                    onValueChange={(value) =>
+                                      setDuration(value[0])
+                                    }
+                                    min={5}
+                                    max={120}
+                                    step={5}
+                                    className="py-2"
+                                  />
+                                </div>
+                              </div>
+
+                              <Button
+                                onClick={calculateSurgePrice}
+                                className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 mb-4"
+                                disabled={loading}
+                              >
+                                Calculate Price
+                              </Button>
+
+                              {surgePricing && (
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-gray-800 p-3 rounded-lg">
+                                      <div className="text-xs text-gray-400 mb-1">
+                                        Base Fare
+                                      </div>
+                                      <div className="text-lg font-semibold text-white">
+                                        {formatPrice(
+                                          surgePricing?.pricing?.base_fare
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="bg-gray-800 p-3 rounded-lg">
+                                      <div className="text-xs text-gray-400 mb-1">
+                                        Time Fare
+                                      </div>
+                                      <div className="text-lg font-semibold text-white">
+                                        {formatPrice(
+                                          surgePricing?.pricing?.time_fare
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="bg-gray-800 p-3 rounded-lg">
+                                    <div className="flex justify-between items-center mb-2">
+                                      <span className="text-sm text-gray-400">
+                                        Subtotal
+                                      </span>
+                                      <span className="text-sm text-white">
+                                        {formatPrice(
+                                          surgePricing?.pricing?.subtotal
+                                        )}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between items-center mb-2">
+                                      <span className="text-sm text-gray-400">
+                                        Surge Multiplier
+                                      </span>
+                                      <span className="text-sm text-yellow-400">
+                                        {surgePricing?.pricing?.surge_multiplier?.toFixed(
+                                          2
+                                        ) || "1.00"}
+                                        x
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-2 border-t border-gray-700">
+                                      <span className="text-base font-medium text-white">
+                                        Total Price
+                                      </span>
+                                      <span className="text-lg font-semibold text-yellow-400">
+                                        {formatPrice(
+                                          surgePricing?.pricing?.total_price
+                                        )}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="bg-gray-800 p-3 rounded-lg">
+                                    <h6 className="text-sm font-medium text-white mb-2">
+                                      Current Demand Stats
+                                    </h6>
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                      <div>
+                                        <span className="text-gray-400">
+                                          Forecast Requests:
+                                        </span>
+                                        <span className="text-white ml-1">
+                                          {surgePricing?.demand_supply
+                                            ?.forecast_requests || 0}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-400">
+                                          Active Drivers:
+                                        </span>
+                                        <span className="text-white ml-1">
+                                          {surgePricing?.demand_supply
+                                            ?.active_drivers || 0}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-400">
+                                          Available Drivers:
+                                        </span>
+                                        <span className="text-green-400 ml-1">
+                                          {surgePricing?.demand_supply
+                                            ?.available_drivers || 0}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <span className="text-gray-400">
+                                          Demand/Supply:
+                                        </span>
+                                        <span className="text-yellow-400 ml-1">
+                                          {surgePricing?.demand_supply?.demand_supply_ratio?.toFixed(
+                                            2
+                                          ) || "1.00"}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Driver Insights Section */}
+                        <div className="mt-8">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-base font-semibold text-white">
+                              Driver Insights
+                            </h4>
+                            <Button
+                              onClick={() => setShowForecast(!showForecast)}
+                              className="text-xs bg-transparent hover:bg-gray-700 text-yellow-400 border border-yellow-400"
+                            >
+                              {showForecast ? "Hide Insights" : "Show Insights"}
+                            </Button>
+                          </div>
+
+                          {showForecast && (
+                            <div className="space-y-6">
+                              {/* Best Times to Drive */}
+                              <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+                                <h5 className="text-sm font-semibold text-white mb-3">
+                                  Best Times to Drive Today
+                                </h5>
+                                <div className="grid grid-cols-3 gap-3">
+                                  {bestTimes.map((time, index) => (
+                                    <div
+                                      key={index}
+                                      className="bg-gray-800 p-3 rounded-lg text-center"
+                                    >
+                                      <div className="text-yellow-400 text-lg font-semibold">
+                                        {time.hour}:00
+                                      </div>
+                                      <div className="text-xs text-gray-400 mt-1">
+                                        {time.demand} expected rides
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Earnings Potential */}
+                              <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+                                <h5 className="text-sm font-semibold text-white mb-3">
+                                  Earnings Potential
+                                </h5>
+                                <div className="space-y-3">
+                                  {potentialEarnings.map((slot, index) => (
+                                    <div
+                                      key={index}
+                                      className="bg-gray-800 p-3 rounded-lg"
+                                    >
+                                      <div className="flex justify-between items-center mb-2">
+                                        <span className="text-sm text-white">
+                                          {slot.hourRange}
+                                        </span>
+                                        <span
+                                          className={`text-xs px-2 py-1 rounded-full ${
+                                            slot.confidence === "High"
+                                              ? "bg-green-900/30 text-green-400 border border-green-700/50"
+                                              : slot.confidence === "Medium"
+                                              ? "bg-yellow-900/30 text-yellow-400 border border-yellow-700/50"
+                                              : "bg-red-900/30 text-red-400 border border-red-700/50"
+                                          }`}
+                                        >
+                                          {slot.confidence} Confidence
+                                        </span>
+                                      </div>
+                                      <div className="text-lg font-semibold text-yellow-400">
+                                        ₹{slot.minEarnings} - ₹
+                                        {slot.maxEarnings}
+                                      </div>
+                                      <div className="text-xs text-gray-400 mt-1">
+                                        Estimated earnings range
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Demand Forecast Graph */}
+                              {forecastData &&
+                              forecastData.forecast &&
+                              forecastData.forecast.length > 0 ? (
+                                <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+                                  <h5 className="text-sm font-semibold text-white mb-3">
+                                    24-Hour Demand Forecast
+                                  </h5>
+                                  <div className="h-48 relative">
+                                    {/* Simple bar graph visualization */}
+                                    <div className="flex items-end h-40 space-x-1">
+                                      {forecastData.forecast.map(
+                                        (hour, index) => {
+                                          const height =
+                                            (hour.forecast_requests / 100) *
+                                            100;
+                                          return (
+                                            <div
+                                              key={index}
+                                              className="flex-1 bg-yellow-400/20 hover:bg-yellow-400/30 transition-all rounded-t"
+                                              style={{
+                                                height: `${Math.min(
+                                                  100,
+                                                  height
+                                                )}%`,
+                                              }}
+                                              title={`${new Date(
+                                                hour.datetime
+                                              ).getHours()}:00 - ${
+                                                hour.forecast_requests
+                                              } rides`}
+                                            ></div>
+                                          );
+                                        }
+                                      )}
+                                    </div>
+                                    <div className="flex justify-between text-xs text-gray-400 mt-2">
+                                      <span>Now</span>
+                                      <span>6h</span>
+                                      <span>12h</span>
+                                      <span>18h</span>
+                                      <span>24h</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+                                  <div className="text-center text-gray-400 py-4">
+                                    No forecast data available
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Pricing Legend - Update the existing one */}
+                        <div className="mt-8">
+                          <h4 className="text-base font-semibold text-white mb-4">
+                            Surge Pricing Guide
+                          </h4>
+                          <div className="grid grid-cols-3 gap-2 mb-2">
+                            <div className="bg-gray-900 p-3 rounded-lg text-center">
+                              <div className="h-2 w-full bg-gradient-to-r from-green-400 to-yellow-400 rounded mb-2"></div>
+                              <div className="text-xs text-gray-400">
+                                Base Rate
+                              </div>
+                              <div className="text-sm text-white font-medium">
+                                1.0x - 1.5x
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                Normal demand
+                              </div>
+                            </div>
+                            <div className="bg-gray-900 p-3 rounded-lg text-center">
+                              <div className="h-2 w-full bg-gradient-to-r from-yellow-400 to-orange-400 rounded mb-2"></div>
+                              <div className="text-xs text-gray-400">
+                                Peak Rate
+                              </div>
+                              <div className="text-sm text-white font-medium">
+                                1.5x - 2.0x
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                High demand
+                              </div>
+                            </div>
+                            <div className="bg-gray-900 p-3 rounded-lg text-center">
+                              <div className="h-2 w-full bg-gradient-to-r from-orange-400 to-red-400 rounded mb-2"></div>
+                              <div className="text-xs text-gray-400">
+                                Surge Rate
+                              </div>
+                              <div className="text-sm text-white font-medium">
+                                2.0x - 2.5x
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                Very high demand
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-3 gap-2 mb-2">
@@ -533,15 +1078,6 @@ const Rides = () => {
                             Exclusive promotions and discounts
                           </li>
                         </ul>
-                      </div>
-
-                      <div className="flex justify-end mt-4">
-                        <Button className="bg-transparent hover:bg-gray-700 text-yellow-400 border border-yellow-400 text-xs mr-2">
-                          View Forecast
-                        </Button>
-                        <Button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs">
-                          Navigate to Highest Surge
-                        </Button>
                       </div>
                     </div>
                   )}

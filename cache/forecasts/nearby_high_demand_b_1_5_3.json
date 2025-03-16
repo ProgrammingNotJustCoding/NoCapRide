@@ -1,0 +1,61 @@
+{
+  "data": {
+    "current_ward": "b_1",
+    "recommendations": [
+      {
+        "ward": "5",
+        "distance": 4,
+        "avg_demand": 114.67,
+        "active_drivers": 0,
+        "available_drivers": 0,
+        "demand_supply_ratio": 114.67,
+        "score": 15.813
+      },
+      {
+        "ward": "4",
+        "distance": 3,
+        "avg_demand": 113.0,
+        "active_drivers": 0,
+        "available_drivers": 0,
+        "demand_supply_ratio": 113.0,
+        "score": 15.64
+      },
+      {
+        "ward": "3",
+        "distance": 2,
+        "avg_demand": 91.33,
+        "active_drivers": 0,
+        "available_drivers": 0,
+        "demand_supply_ratio": 91.33,
+        "score": 12.667
+      },
+      {
+        "ward": "2",
+        "distance": 1,
+        "avg_demand": 72.67,
+        "active_drivers": 0,
+        "available_drivers": 0,
+        "demand_supply_ratio": 72.67,
+        "score": 10.113
+      },
+      {
+        "ward": "1",
+        "distance": 0,
+        "avg_demand": 53.0,
+        "active_drivers": 0,
+        "available_drivers": 0,
+        "demand_supply_ratio": 53.0,
+        "score": 7.42
+      }
+    ],
+    "metadata": {
+      "max_distance": 5,
+      "hours_ahead": 3,
+      "generated_at": "2025-03-16T10:37:27.078882",
+      "processed_wards": 12,
+      "skipped_wards": 237
+    }
+  },
+  "cached_at": "2025-03-16T10:37:27.078893",
+  "key": "nearby_high_demand_b_1_5_3"
+}

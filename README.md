@@ -1,101 +1,114 @@
-# NoCapRide - Team Saadhana (N-07) - TGBH'25
+# NoCapRide - Demand Forecasting & Surge Pricing API
+A machine learning-powered ride-hailing platform backend with intelligent demand forecasting and surge pricing capabilities.
 
-A modern ride-hailing platform with intelligent demand forecasting and surge balancing.
+## [Demo](https://www.youtube.com/watch?v=bLbfNtwy3UA) --- [Repo Version while recording video](https://github.com/ProgrammingNotJustCoding/NoCapRide/releases/tag/v1.0)
 
-### [Demo Video](https://youtu.be/bLbfNtwy3UA)
+## Project Overview
+NoCapRide provides a robust backend API for ride-hailing platforms, focusing on:
+- Machine learning-powered demand prediction
+- Dynamic surge pricing
+- Real-time data processing
+- Spatial demand analysis
+
+The system helps both riders and drivers by balancing supply and demand through intelligent forecasting.
 
 ## Project Structure
 ```
 NoCapRide/
-├── api.py                  # Flask API for backend services
-├── panda.py               # ML-powered forecasting engine
-├── requirements.txt       # Python dependencies
-├── client/               # Next.js frontend application
-│   ├── app/              # App router components
-│   │   ├── rides/       # Ride management interface
-│   │   └── components/  # Reusable UI components
-│   └── package.json     # Frontend dependencies
-├── static-data/         # Static data files and resources
-├── logs/               # Application logs
-└── prev-model-attempt/ # Previous ML model iterations
+├── cache/                   # Cached forecasts and API responses (auto-generated)
+│   └── forecasts/           # Stored forecast data
+├── server/                  # Backend server modules
+│   ├── api.py               # API endpoints
+│   ├── cache_manager.py     # Cache management logic
+│   ├── custom_logger.py     # Custom logging setup
+│   ├── data_manager.py      # Data management logic
+│   └── forecaster.py        # Forecasting logic
+├── archive/                 # Development history
+│   ├── attempt-1/           # Initial implementation
+│   ├── attempt-2/           # Second iteration with fetch module
+│   ├── attempt-3/           # Third iteration
+│   ├── data/                # Archive data files
+│   └── static-data/         # Static reference data
+├── client/                  # Frontend client application
+│   ├── app/                 # Next.js app directory
+│   ├── components/          # React components
+│   ├── lib/                 # Shared utilities
+│   ├── public/              # Static assets
+│   ├── README.md            # Frontend documentation
+│   ├── package.json         # Frontend dependencies
+│   ├── next.config.ts       # Next.js configuration
+│   └── components.json      # Component configurations
+├── logs/                    # Application logs
+│   ├── api_log.txt          # API service logs
+│   ├── forecast_log.txt     # Forecasting engine logs
+│   └── forecast_output.log  # Forecast results
+├── ... other default files
 ```
 
 ## Features
+### Demand Forecasting
+- Time-series forecasting for ride requests by region
+- Historical trend analysis
+- Feature engineering for temporal patterns
+- Random Forest regression model for prediction
 
-### For Riders
-- Real-time ride booking and tracking
-- Transparent surge pricing information
-- Scheduled rides
-- Saved locations
-- Payment method management
-- Ride history and statistics
+### Surge Pricing
+- Dynamic pricing based on supply-demand ratio
+- Configurable pricing parameters
+- Region-specific pricing adjustments
+- Real-time price calculation API
 
-### For Drivers
-- Intelligent demand forecasting
-- Surge pricing program with priority benefits
-- Real-time earnings tracking
-- Best times to drive recommendations
-- Area-wise demand visualization
-- Driver insights dashboard
+### Spatial Analysis
+- Nearby high-demand area recommendations
+- Region-based demand visualization
+- Geographic demand patterns detection
 
-### Technical Features
-- ML-powered demand prediction
-- Dynamic surge pricing algorithm
-- Real-time data processing
-- Interactive data visualizations
-- RESTful API architecture
-- Modern React/Next.js frontend
-- Responsive dark mode UI
+## API Endpoints
+### Forecasting
+- `GET /api/forecast` - Get demand forecast for specified region and time window
+- `GET /api/forecast/all` - Get forecasts for all regions
+- `GET /api/regions` - Get available regions for forecasting
+
+### Pricing
+- `POST /api/surge_pricing` - Calculate surge pricing for a specific trip
+- `POST /api/demand_forecast_ratio` - Get the ratio between forecasted demand and active drivers
+
+### Recommendations
+- `GET /api/nearby_high_demand` - Get high-demand locations near a specified region
+
+### Utility
+- `GET /api/health` - Health check endpoint
 
 ## Setup Instructions
-
-### Backend Setup
 1. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-2. Start the Flask API:
+2. Start the FastAPI server:
    ```bash
-   python api.py
+   uvicorn api:app --host 127.0.0.1 --port 8888 --reload
    ```
 
-### Frontend Setup
-1. Navigate to the client directory:
-   ```bash
-   cd client
+3. Access the API documentation:
+   ```
+   http://127.0.0.1:8888/docs
    ```
 
-2. Install Node.js dependencies:
-   ```bash
-   npm install
-   ```
+## Configuration
+The system is configured to:
+- Refresh data from endpoints automatically
+- Cache forecast results for performance
+- Train/update models on a schedule
+- Generate visualizations of forecasts
 
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-## API Endpoints
-
-### Demand Forecasting
-- `GET /api/forecast` - Get demand forecast for specified region
-- `GET /api/nearby-demand` - Get demand in nearby areas
-- `GET /api/surge-price` - Calculate surge pricing
-
-### Ride Management
-- `POST /api/rides` - Create new ride
-- `GET /api/rides` - Get ride history
-- `GET /api/rides/:id` - Get specific ride details
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## Technical Implementation
+The system uses:
+- **FastAPI**: Modern, high-performance web framework
+- **pandas**: Data manipulation and analysis
+- **scikit-learn**: Machine learning model implementation
+- **matplotlib**: Data visualization
+- **Threading**: Parallel processing for forecasts
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MPL v2 License.

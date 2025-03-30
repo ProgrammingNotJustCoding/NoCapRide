@@ -1,6 +1,11 @@
 venv/
+.vscode/
+
 .DS_Store
 *.log
 *log.txt
 
+
+logs
+cache
 node_modules
